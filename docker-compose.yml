@@ -1,0 +1,19 @@
+services:
+  venturepack:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: venturepack-web
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      AUTH_SECRET: "replace-this-with-your-real-auth-secret"
+      AUTH_URL: "http://http://192.168.68.134:3000"
+      DATABASE_URL: "file:/app/data/dev.db"
+    volumes:
+      - venturepack_data:/app/data
+    restart: unless-stopped
+
+volumes:
+  venturepack_data:

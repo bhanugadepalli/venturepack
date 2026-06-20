@@ -1,0 +1,359 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String?
+
+  role                   String  @default("founder")
+  authStatus             String  @default("active")
+  mfaEnabled             Boolean @default(false)
+  accountStatus          String  @default("active")
+  termsAcceptedVersion   String?
+  privacyAcceptedVersion String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts       Account[]
+  sessions       Session[]
+  authenticators Authenticator[]
+
+  companies           Company[]
+  passwordResetTokens PasswordResetToken[]
+  auditEvents         AuditEvent[]         @relation("AuditActor")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Authenticator {
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, credentialID])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Company {
+  id      String @id @default(cuid())
+  ownerId String
+
+  companyName               String?
+  proposedCompanyName       String?
+  businessDescription       String?
+  productDescription        String?
+  developmentStage          String?
+  revenueStatus             String?
+  primaryOperatingLocation  String?
+  expectedCustomerLocations String?
+
+  existingEntityStatus String?
+  entityType           String?
+  formationState       String?
+
+  operatesOutsideUS Boolean @default(false)
+  regulatedIndustry Boolean @default(false)
+
+  customersExist            Boolean @default(false)
+  writtenCustomerAgreements Boolean @default(false)
+  contractorsUsed           Boolean @default(false)
+  employeesUsed             Boolean @default(false)
+  ipInvolved                Boolean @default(false)
+  personalInfoCollected     Boolean @default(false)
+  privacyPolicyExists       Boolean @default(false)
+
+  expectsToRaiseMoney         String?
+  moneyAlreadyAccepted        Boolean @default(false)
+  investorsPromisedOwnership  Boolean @default(false)
+  convertibleInstruments      Boolean @default(false)
+  pitchCompetitionApproaching String?
+  investorMeetingScheduled    Boolean @default(false)
+  dataRoomExists              Boolean @default(false)
+  outsideCounselExists        Boolean @default(false)
+
+  primaryPreparationReason  String?
+  founderQuestions          String?
+  knownDeadlines            String?
+  documentsAvailable        String?
+  unresolvedDecisions       String?
+  preferredAttorneyLocation String?
+  approximateLegalBudget    String?
+  preferredCommunication    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  owner                 User                   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  relationships         CompanyRelationship[]
+  preparationTasks      PreparationTask[]
+  matters               Matter[]
+  counselPackets        CounselPacket[]
+  attorneyMatchRequests AttorneyMatchRequest[]
+  aiInteractions        AIInteraction[]
+  auditEvents           AuditEvent[]
+}
+
+model Person {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String?
+  role      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  relationships CompanyRelationship[]
+}
+
+model CompanyRelationship {
+  id        String @id @default(cuid())
+  companyId String
+  personId  String
+
+  relationshipType        String?
+  contributionDescription String?
+  ownershipDiscussed      Boolean @default(false)
+  ownershipWrittenDown    Boolean @default(false)
+  confirmationStatus      String?
+  sourceOfInformation     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  person  Person  @relation(fields: [personId], references: [id], onDelete: Cascade)
+}
+
+model PreparationTask {
+  id        String @id @default(cuid())
+  companyId String
+
+  category               String
+  description            String
+  completionStatus       String  @default("not_started")
+  urgency                String?
+  requiredInformation    String?
+  founderAction          String?
+  counselReviewSuggested Boolean @default(false)
+  createdBy              String  @default("system")
+  completionEvidence     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
+
+model Matter {
+  id        String @id @default(cuid())
+  companyId String
+
+  title                 String
+  matterType            String?
+  description           String?
+  riskLevel             String?
+  jurisdiction          String?
+  deadline              DateTime?
+  status                String    @default("Draft")
+  founderObjective      String?
+  relevantPeople        String?
+  relatedDocuments      String?
+  openQuestions         String?
+  missingInformation    String?
+  recommendedNextStep   String?
+  counselRecommendation String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company        Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  counselPackets CounselPacket[]
+}
+
+model CounselPacket {
+  id        String  @id @default(cuid())
+  companyId String
+  matterId  String?
+
+  packetVersion         String    @default("v1")
+  founderApprovalStatus String    @default("not_approved")
+  includedInformation   String?
+  generatedContent      String?
+  generatedAt           DateTime?
+  downloadedAt          DateTime?
+  sharingHistory        String?
+  expirationDate        DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  matter  Matter? @relation(fields: [matterId], references: [id], onDelete: SetNull)
+}
+
+model AttorneyMatchRequest {
+  id        String @id @default(cuid())
+  companyId String
+
+  legalSubjectArea             String?
+  jurisdiction                 String?
+  companyStage                 String?
+  matterUrgency                String?
+  preferredPricingStructure    String?
+  estimatedBudget              String?
+  preferredCommunicationMethod String?
+  languagePreferences          String?
+  virtualOrLocal               String?
+  alreadyHasCounsel            Boolean @default(false)
+  consentToShareSummary        Boolean @default(false)
+  status                       String  @default("submitted")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
+
+model Source {
+  id               String    @id @default(cuid())
+  title            String
+  publisher        String?
+  authorityLevel   String?
+  jurisdiction     String?
+  subjectArea      String?
+  effectiveDate    DateTime?
+  lastVerifiedDate DateTime?
+  sourceLocation   String?
+  storedExcerpt    String?
+  activeStatus     Boolean   @default(true)
+  supersededStatus Boolean   @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  aiInteractions AIInteractionSource[]
+}
+
+model RiskRule {
+  id                  String  @id @default(cuid())
+  name                String
+  level               String
+  triggerKeywords     String?
+  subjectArea         String?
+  recommendedBehavior String?
+  active              Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AIInteraction {
+  id        String  @id @default(cuid())
+  userId    String?
+  companyId String?
+  matterId  String?
+
+  userQuestion          String?
+  riskClassification    String?
+  promptTemplateVersion String?
+  modelProvider         String?
+  modelName             String?
+  generatedAnswer       String?
+  validationResult      String?
+  userFeedback          String?
+
+  createdAt DateTime @default(now())
+
+  company Company?              @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  sources AIInteractionSource[]
+}
+
+model AIInteractionSource {
+  id              String @id @default(cuid())
+  aiInteractionId String
+  sourceId        String
+
+  aiInteraction AIInteraction @relation(fields: [aiInteractionId], references: [id], onDelete: Cascade)
+  source        Source        @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@unique([aiInteractionId, sourceId])
+}
+
+model AuditEvent {
+  id        String  @id @default(cuid())
+  actorId   String?
+  companyId String?
+
+  action                            String
+  affectedRecord                    String?
+  reason                            String?
+  result                            String?
+  deviceOrSessionInformation        String?
+  administrativeAccessJustification String?
+
+  createdAt DateTime @default(now())
+
+  actor   User?    @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  company Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+}

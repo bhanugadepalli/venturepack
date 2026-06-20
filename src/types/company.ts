@@ -1,0 +1,53 @@
+export type Founder = {
+  name: string;
+  role: string;
+  email: string;
+  equityNote: string;
+};
+
+export type CompanyProfile = {
+  founderNames: string;
+  founderRoles: string;
+  founderEmails: string;
+  founderQuestions: string;
+  otherFounders: string;
+  ownershipDiscussed: string;
+  ownershipWrittenDown: string;
+  companyName: string;
+  entityStatus: string;
+  entityType: string;
+  formationLocation: string;
+  expectedCustomerLocations: string;
+  businessDescription: string;
+  productOrService: string;
+  developmentStage: string;
+  revenueStatus: string;
+  ownershipSummary: string;
+  ipSummary: string;
+  contractorsSummary: string;
+  customersExist: string;
+  contractorsUsed: string;
+  customerActivity: string;
+  personalInformationCollected: string;
+  regulatedIndustry: string;
+  operatesOutsideUs: string;
+  dataPractices: string;
+  expectsToRaise: string;
+  moneyAlreadyAccepted: string;
+  investorMeetingScheduled: string;
+  fundraisingTarget: string;
+  investorConversations: string;
+  fundraisingMaterials: string;
+  fundraisingTimeline: string;
+  outsideCounselExists: string;
+  priorityMatter: string;
+  counselQuestions: string;
+  documentInventory: string;
+  deadline: string;
+  legalBudget: string;
+  communicationFormat: string;
+  meetingGoals: string;
+  submittedAt: string;
+};
+
+export type VenturePackOnboardingData = CompanyProfile;
