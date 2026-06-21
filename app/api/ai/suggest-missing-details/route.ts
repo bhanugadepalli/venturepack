@@ -1,34 +1,26 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
-
-type IncompleteItemInput = {
-  title?: string;
-  description?: string;
-  suggestedNextAction?: string;
-};
-
-type SuggestMissingDetailsRequest = {
-  companyName?: string;
-  completionPercentage?: number;
-  incompleteItems?: IncompleteItemInput[];
-  context?: {
-    matterType?: string;
-    page?: string;
-  };
-};
+import {
+  getQuestionsForCounsel,
+  getSuggestedMissingDetails,
+  type InformationSuggestionInput,
+} from "@/src/lib/informationSuggestions";
 
 type SuggestMissingDetailsResponse = {
   suggestions?: unknown;
   questionsForCounsel?: unknown;
 };
 
-const systemPrompt =
+const systemInstruction =
   "You are VenturePack's Information Compiling Assistant. You help founders compile, organize, clarify, and summarize their own information before generating a counsel packet. You do not provide legal advice. You do not determine legal rights, obligations, compliance, risk, or liability. You do not review contracts or legal documents. You do not recommend entity choice, ownership splits, securities terms, or legal strategy. If legal conclusions are needed, suggest compiling the relevant facts and discussing them with qualified counsel. Keep suggestions practical, neutral, concise, and based only on founder-supplied information.";
+
+const blockedTerms = /\b(legal risk|compliance|liability|red flags?|legal conclusion|contract review)\b/i;
 
 function cleanString(value: unknown) {
   return typeof value === "string" ? value.trim().slice(0, 500) : "";
 }
 
-function normalizeBody(body: unknown): SuggestMissingDetailsRequest {
+function normalizeBody(body: unknown): InformationSuggestionInput {
   const record = body && typeof body === "object" ? (body as Record<string, unknown>) : {};
   const context = record.context && typeof record.context === "object" ? (record.context as Record<string, unknown>) : {};
   const incompleteItems = Array.isArray(record.incompleteItems) ? record.incompleteItems : [];
@@ -56,33 +48,10 @@ function safeStringArray(value: unknown) {
   return Array.isArray(value)
     ? value
         .filter((item): item is string => typeof item === "string")
-        .map((item) => item.trim())
-        .filter(Boolean)
+        .map((item) => item.replace(/\s+/g, " ").trim())
+        .filter((item) => item && !blockedTerms.test(item))
         .slice(0, 5)
     : [];
-}
-
-function getOutputText(payload: Record<string, unknown>) {
-  if (typeof payload.output_text === "string") {
-    return payload.output_text;
-  }
-
-  const output = Array.isArray(payload.output) ? payload.output : [];
-
-  for (const outputItem of output) {
-    const outputRecord = outputItem && typeof outputItem === "object" ? (outputItem as Record<string, unknown>) : {};
-    const content = Array.isArray(outputRecord.content) ? outputRecord.content : [];
-
-    for (const contentItem of content) {
-      const contentRecord = contentItem && typeof contentItem === "object" ? (contentItem as Record<string, unknown>) : {};
-
-      if (typeof contentRecord.text === "string") {
-        return contentRecord.text;
-      }
-    }
-  }
-
-  return "";
 }
 
 function parseAssistantJson(text: string): SuggestMissingDetailsResponse {
@@ -90,81 +59,103 @@ function parseAssistantJson(text: string): SuggestMissingDetailsResponse {
     return JSON.parse(text) as SuggestMissingDetailsResponse;
   } catch {
     const match = text.match(/\{[\s\S]*\}/);
-    return match ? (JSON.parse(match[0]) as SuggestMissingDetailsResponse) : {};
+    if (!match) return {};
+
+    try {
+      return JSON.parse(match[0]) as SuggestMissingDetailsResponse;
+    } catch {
+      return {};
+    }
   }
 }
 
+function buildUserPrompt(input: InformationSuggestionInput) {
+  const incompleteItems = (input.incompleteItems ?? []).map((item, index) => ({
+    number: index + 1,
+    title: item.title,
+    description: item.description,
+    suggestedNextAction: item.suggestedNextAction,
+  }));
+
+  return [
+    "Return valid JSON only in this exact shape:",
+    '{ "suggestions": ["..."], "questionsForCounsel": ["..."] }',
+    "",
+    "Rules:",
+    "- Up to 5 suggestions.",
+    "- Up to 5 questions for counsel.",
+    "- Suggestions must be phrased as information to compile, not legal instructions.",
+    "- Questions must be neutral questions to discuss with counsel.",
+    "- Do not mention legal risk, compliance, liability, red flags, or legal conclusions.",
+    "",
+    "Founder-supplied context:",
+    JSON.stringify({
+      companyName: input.companyName || undefined,
+      completionPercentage: input.completionPercentage,
+      incompleteItems,
+      context: {
+        matterType: input.context?.matterType || undefined,
+        page: input.context?.page || undefined,
+      },
+    }),
+  ].join("\n");
+}
+
+function rulesResponse(input: InformationSuggestionInput) {
+  return NextResponse.json({
+    ok: true,
+    provider: "rules",
+    suggestions: getSuggestedMissingDetails(input),
+    questionsForCounsel: getQuestionsForCounsel(input),
+  });
+}
+
 export async function POST(request: Request) {
-  const apiKey = process.env.OPENAI_API_KEY;
+  let body: unknown = {};
+
+  try {
+    body = await request.json();
+  } catch {
+    body = {};
+  }
+
+  const input = normalizeBody(body);
+  const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    return NextResponse.json(
-      {
-        ok: false,
-        error: "AI suggestions are not available right now.",
-      },
-      { status: 503 },
-    );
+    return rulesResponse(input);
   }
 
   try {
-    const input = normalizeBody(await request.json());
-    const userPrompt = [
-      "Given the incomplete checklist items and workspace context, return JSON only with:",
-      "suggestions: up to 5 suggested missing details to compile.",
-      "questionsForCounsel: up to 5 neutral questions to prepare for counsel.",
-      "Suggestions must be phrased as information to compile, not actions the founder legally must take.",
-      "Questions must be phrased as questions to discuss with counsel.",
-      "Do not mention legal risk, compliance, liability, or rights.",
-      "Do not provide legal conclusions.",
-      "",
-      JSON.stringify(input),
-    ].join("\n");
-
-    const response = await fetch("https://api.openai.com/v1/responses", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
-        input: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        temperature: 0.2,
-        max_output_tokens: 700,
-      }),
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({
+      model: process.env.GEMINI_MODEL || "gemini-3.5-flash",
+      systemInstruction,
     });
-
-    if (!response.ok) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error: "AI suggestions are not available right now.",
-        },
-        { status: 502 },
-      );
-    }
-
-    const payload = (await response.json()) as Record<string, unknown>;
-    const parsed = parseAssistantJson(getOutputText(payload));
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: buildUserPrompt(input) }] }],
+      generationConfig: {
+        temperature: 0.2,
+        maxOutputTokens: 700,
+        responseMimeType: "application/json",
+      },
+    });
+    const parsed = parseAssistantJson(result.response.text());
     const suggestions = safeStringArray(parsed.suggestions);
     const questionsForCounsel = safeStringArray(parsed.questionsForCounsel);
 
+    if (suggestions.length === 0) {
+      return rulesResponse(input);
+    }
+
     return NextResponse.json({
       ok: true,
+      provider: "gemini",
       suggestions,
-      questionsForCounsel,
+      questionsForCounsel: questionsForCounsel.length > 0 ? questionsForCounsel : getQuestionsForCounsel(input),
     });
-  } catch {
-    return NextResponse.json(
-      {
-        ok: false,
-        error: "AI suggestions are not available right now.",
-      },
-      { status: 500 },
-    );
+  } catch (error) {
+    console.error("Gemini suggestion generation failed; using rules fallback.", error instanceof Error ? error.message : "Unknown error");
+    return rulesResponse(input);
   }
 }
