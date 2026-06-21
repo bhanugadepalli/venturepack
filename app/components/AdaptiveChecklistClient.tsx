@@ -78,6 +78,30 @@ type AnswerResponse = {
   error?: string;
 };
 
+type BriefSection = {
+  title: string;
+  founderSuppliedFacts: string[];
+  platformOrganizedSummary: string;
+  missingInformation: string[];
+};
+
+type BriefPreview = {
+  briefType: "COUNSEL_BRIEF" | "PITCH_BRIEF";
+  title: string;
+  generatedAt: string;
+  content: {
+    sections: BriefSection[];
+    warnings: string[];
+    disclaimer: string;
+  };
+};
+
+type BriefResponse = {
+  ok: boolean;
+  brief?: BriefPreview;
+  error?: string;
+};
+
 type FormState = {
   businessType: string;
   ventureStage: string;
@@ -149,10 +173,13 @@ export function AdaptiveChecklistClient() {
   const [answerDrafts, setAnswerDrafts] = useState<Record<string, AnswerDraft>>({});
   const [savingQuestionId, setSavingQuestionId] = useState("");
   const [savedQuestionId, setSavedQuestionId] = useState("");
+  const [briefPreview, setBriefPreview] = useState<BriefPreview | null>(null);
+  const [briefReviewed, setBriefReviewed] = useState(false);
   const [isLoadingSession, setIsLoadingSession] = useState(true);
   const [isLoadingProgress, setIsLoadingProgress] = useState(false);
   const [isSavingSession, setIsSavingSession] = useState(false);
   const [isGeneratingQuestions, setIsGeneratingQuestions] = useState(false);
+  const [isGeneratingBrief, setIsGeneratingBrief] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
@@ -313,6 +340,32 @@ export function AdaptiveChecklistClient() {
     }
   }
 
+  async function generateBrief(briefType: "COUNSEL_BRIEF" | "PITCH_BRIEF") {
+    setError("");
+    setIsGeneratingBrief(true);
+    setBriefReviewed(false);
+
+    try {
+      const response = await fetch("/api/briefs/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ briefType }),
+      });
+      const payload = (await response.json()) as BriefResponse;
+
+      if (!response.ok || !payload.ok || !payload.brief) {
+        setError(payload.error === "NO_ACTIVE_CHECKLIST_SESSION" ? "Create a checklist session first." : payload.error || "Unable to generate brief preview.");
+        return;
+      }
+
+      setBriefPreview(payload.brief);
+    } catch {
+      setError("Unable to generate brief preview.");
+    } finally {
+      setIsGeneratingBrief(false);
+    }
+  }
+
   async function createSession(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
@@ -438,6 +491,118 @@ export function AdaptiveChecklistClient() {
           </div>
           <p className="max-w-3xl text-sm leading-6 text-[#64748B]">{progress?.note ?? progressNote}</p>
         </div>
+      </section>
+
+      <section className="xl:col-span-2 rounded-3xl border border-[#DCE7F3] bg-white p-5 shadow-md shadow-[#00173C]/[0.04] sm:p-6">
+        <div className="flex flex-col gap-4 border-b border-[#DCE7F3] pb-5 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#008787]">Brief preview</p>
+            <h2 className="mt-2 text-2xl font-bold tracking-tight text-[#00173C]">Generate a Preparation Brief</h2>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-[#64748B]">
+              Create an on-screen preview from saved checklist answers and company facts.
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button
+              type="button"
+              onClick={() => generateBrief("COUNSEL_BRIEF")}
+              disabled={isGeneratingBrief || !session}
+              className="rounded-xl bg-[#0B3E9F] px-5 py-3 text-sm font-semibold text-white hover:bg-[#00173C] focus:outline-none focus:ring-4 focus:ring-[rgba(0,158,167,0.24)] disabled:cursor-not-allowed disabled:bg-slate-400"
+            >
+              Generate Counsel Brief
+            </button>
+            <button
+              type="button"
+              onClick={() => generateBrief("PITCH_BRIEF")}
+              disabled={isGeneratingBrief || !session}
+              className="rounded-xl border border-[#DCE7F3] bg-white px-5 py-3 text-sm font-semibold text-[#0B3E9F] hover:bg-[#F8FAFC] focus:outline-none focus:ring-4 focus:ring-[rgba(0,158,167,0.24)] disabled:cursor-not-allowed disabled:text-[#94A3B8]"
+            >
+              Generate Pitch Brief
+            </button>
+          </div>
+        </div>
+
+        {isGeneratingBrief ? (
+          <p className="mt-5 rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-4 text-sm leading-6 text-[#64748B]">
+            Generating preview...
+          </p>
+        ) : null}
+
+        {briefPreview ? (
+          <div className="mt-5 grid gap-5">
+            <div className="rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-4">
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#008787]">
+                {briefPreview.briefType === "COUNSEL_BRIEF" ? "Counsel Brief" : "Pitch Brief"}
+              </p>
+              <h3 className="mt-2 text-2xl font-bold text-[#00173C]">{briefPreview.title}</h3>
+              <p className="mt-2 text-sm leading-6 text-[#64748B]">
+                Generated {new Date(briefPreview.generatedAt).toLocaleString()}
+              </p>
+              {(briefPreview.content.warnings ?? []).length > 0 ? (
+                <div className="mt-4 rounded-xl border border-[#DCE7F3] bg-white p-4">
+                  <p className="text-sm font-bold text-[#00173C]">Warnings</p>
+                  <ul className="mt-2 space-y-1 text-sm leading-6 text-[#64748B]">
+                    {briefPreview.content.warnings.map((warning) => (
+                      <li key={warning}>{warning}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
+
+            {briefPreview.content.sections.map((section) => (
+              <article key={section.title} className="rounded-2xl border border-[#DCE7F3] bg-white p-4">
+                <h4 className="text-lg font-bold text-[#00173C]">{section.title}</h4>
+                <div className="mt-4 grid gap-4 lg:grid-cols-3">
+                  <div>
+                    <p className="text-sm font-bold text-[#00173C]">Founder-supplied facts</p>
+                    <ul className="mt-2 space-y-1 text-sm leading-6 text-[#64748B]">
+                      {section.founderSuppliedFacts.map((fact) => (
+                        <li key={fact}>{fact}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-[#00173C]">Platform-organized summary</p>
+                    <p className="mt-2 text-sm leading-6 text-[#64748B]">{section.platformOrganizedSummary}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-[#00173C]">Missing information</p>
+                    <ul className="mt-2 space-y-1 text-sm leading-6 text-[#64748B]">
+                      {section.missingInformation.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </article>
+            ))}
+
+            <div className="rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-4">
+              <p className="text-sm leading-6 text-[#64748B]">
+                {briefPreview.briefType === "COUNSEL_BRIEF"
+                  ? "VenturePack organizes preparation information. It is not a law firm and does not provide legal advice."
+                  : "This brief is for preparation only. It does not indicate investment readiness or likelihood of funding."}
+              </p>
+              <label className="mt-4 flex items-center gap-3 text-sm font-semibold text-[#00173C]">
+                <input
+                  type="checkbox"
+                  checked={briefReviewed}
+                  onChange={(event) => setBriefReviewed(event.target.checked)}
+                  className="h-4 w-4 rounded border-[#A9B8C9] text-[#0B3E9F] focus:ring-[rgba(0,158,167,0.24)]"
+                />
+                I reviewed this brief and understand it is based on founder-supplied information.
+              </label>
+              <button
+                type="button"
+                disabled={!briefReviewed}
+                className="mt-4 rounded-xl border border-[#DCE7F3] bg-white px-5 py-3 text-sm font-semibold text-[#64748B] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-[#94A3B8]"
+              >
+                PDF Download Coming Next
+              </button>
+            </div>
+          </div>
+        ) : null}
       </section>
 
       <section className="rounded-3xl border border-[#DCE7F3] bg-white p-5 shadow-md shadow-[#00173C]/[0.04] sm:p-6">
