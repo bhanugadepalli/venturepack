@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { VenturePackLogo } from "@/components/VenturePackLogo";
+import { MarketingShell } from "@/components/marketing/MarketingShell";
 import { Badge, Button, Card } from "./components/ui";
 
 const productMockup = [
@@ -32,25 +31,11 @@ const features = [
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#F8FAFC] text-[#00173C]">
+    <MarketingShell>
       <section className="relative overflow-hidden bg-gradient-to-br from-[#00173C] via-[#0B3E9F] to-[#009EA7]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(255,255,255,0.22),transparent_28%),radial-gradient(circle_at_82%_14%,rgba(0,158,167,0.34),transparent_30%),linear-gradient(180deg,rgba(0,23,60,0),rgba(0,23,60,0.22))]" />
         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#F8FAFC] to-transparent" />
         <div className="relative mx-auto flex min-h-[88vh] max-w-7xl flex-col px-6 py-6 sm:px-8 lg:px-10">
-          <nav className="flex items-center justify-between">
-            <Link href="/" className="rounded-xl bg-white/95 p-2 shadow-sm shadow-[#00173C]/20 hover:bg-white focus:outline-none focus:ring-2 focus:ring-white/70">
-              <VenturePackLogo width={190} height={64} priority className="h-9 w-auto sm:h-10" />
-            </Link>
-            <div className="flex items-center gap-3">
-              <Link href="/login" className="hidden rounded-xl px-4 py-2 text-sm font-semibold text-white/85 hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/70 sm:inline-flex">
-                Log in
-              </Link>
-              <Link href="/app" className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-[#00173C] shadow-sm shadow-[#00173C]/20 hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-white/70">
-                Open workspace
-              </Link>
-            </div>
-          </nav>
-
           <div className="grid flex-1 items-center gap-12 py-16 lg:grid-cols-[1.02fr_0.98fr] lg:py-20">
             <div className="max-w-3xl">
               <span className="inline-flex w-fit rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-white shadow-sm backdrop-blur">
@@ -64,7 +49,7 @@ export default function Home() {
                 counsel packets before speaking with an attorney.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <Button href="/app" className="bg-white px-5 py-3 text-[#00173C] shadow-lg shadow-[#00173C]/20 hover:bg-[#F8FAFC]">
+                <Button href="/signup" className="bg-white px-5 py-3 text-[#00173C] shadow-lg shadow-[#00173C]/20 hover:bg-[#F8FAFC]">
                   Start preparation
                 </Button>
                 <Button href="/use-cases" variant="secondary" className="border-white/25 bg-white/10 px-5 py-3 text-white backdrop-blur hover:border-white/50 hover:bg-white/15">
@@ -285,20 +270,12 @@ export default function Home() {
             qualified counsel.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Button href="/app">Start preparation</Button>
+            <Button href="/signup">Start preparation</Button>
             <Button href="/signup" variant="secondary">Create account</Button>
           </div>
         </div>
       </section>
 
-      <footer className="border-t border-[#DCE7F3] bg-white px-6 py-8 text-sm text-[#64748B] sm:px-8 lg:px-10">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <Link href="/" className="inline-flex w-fit rounded-xl p-1 hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[rgba(0,158,167,0.28)]">
-            <VenturePackLogo width={160} height={54} className="h-8 w-auto" />
-          </Link>
-          <p>Prepare your startup before the first legal conversation.</p>
-        </div>
-      </footer>
-    </main>
+    </MarketingShell>
   );
 }
