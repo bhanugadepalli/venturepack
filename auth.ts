@@ -8,6 +8,10 @@ export const {
   },
   session: {
     strategy: "jwt",
+    maxAge: 4 * 60 * 60,
+  },
+  jwt: {
+    maxAge: 4 * 60 * 60,
   },
   providers: [],
   callbacks: {

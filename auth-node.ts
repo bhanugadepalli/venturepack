@@ -3,6 +3,8 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { prisma } from "@/src/lib/prisma";
 
+const isDevLog = process.env.NODE_ENV !== "production";
+
 export const {
   handlers: { GET, POST },
 } = NextAuth({
@@ -11,21 +13,24 @@ export const {
   },
   session: {
     strategy: "jwt",
+    maxAge: 4 * 60 * 60,
+  },
+  jwt: {
+    maxAge: 4 * 60 * 60,
   },
   providers: [
     Credentials({
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        rememberMe: { label: "Remember me", type: "checkbox" },
       },
       async authorize(credentials) {
         const email = typeof credentials?.email === "string" ? credentials.email.trim().toLowerCase() : "";
         const password = typeof credentials?.password === "string" ? credentials.password : "";
 
-        console.log("Auth authorize called:", { email, passwordLength: password.length });
-
         if (!email || !password) {
-          console.log("Missing email or password");
+          if (isDevLog) console.log("Credentials login missing email or password");
           return null;
         }
 
@@ -43,28 +48,25 @@ export const {
           },
         });
 
-        console.log("User found:", {
-          found: !!user,
-          email: user?.email,
-          hasPasswordHash: !!user?.passwordHash,
-          accountStatus: user?.accountStatus,
-          authStatus: user?.authStatus,
-        });
+        const storedHash = user?.passwordHash ?? "";
 
-        if (!user?.passwordHash || user.accountStatus !== "active" || user.authStatus !== "active") {
-          console.log("User validation failed");
+        if (isDevLog) {
+          console.log("LOGIN_USER_FOUND", Boolean(user));
+          console.log("LOGIN_HAS_PASSWORD_HASH", Boolean(storedHash));
+        }
+
+        if (!user || !storedHash || user.accountStatus !== "active" || user.authStatus !== "active") {
           return null;
         }
 
-        const passwordMatches = await bcrypt.compare(password, user.passwordHash);
-        console.log("Password comparison result:", passwordMatches);
+        const passwordValid = await bcrypt.compare(password, storedHash);
 
-        if (!passwordMatches) {
-          console.log("Password does not match");
+        if (isDevLog) console.log("LOGIN_PASSWORD_VALID", passwordValid);
+
+        if (!passwordValid) {
           return null;
         }
 
-        console.log("Auth successful for user:", user.email);
         return {
           id: user.id,
           name: user.name,

@@ -3,14 +3,20 @@
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { VenturePackLogo } from "@/components/VenturePackLogo";
 
 export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setMessage(params.get("message") ?? "");
+  }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -20,11 +26,13 @@ export default function LoginPage() {
     const formData = new FormData(event.currentTarget);
     const email = String(formData.get("email") ?? "").trim();
     const password = String(formData.get("password") ?? "");
+    const rememberMe = formData.get("rememberMe") === "on";
 
     try {
       const result = await signIn("credentials", {
         email,
         password,
+        rememberMe: rememberMe ? "true" : "false",
         redirect: false,
       });
 
@@ -86,6 +94,11 @@ export default function LoginPage() {
             </p>
           </div>
           <form className="mt-6 grid gap-4" onSubmit={handleSubmit}>
+            {message ? (
+              <p className="rounded-md border border-[#BFE8EA] bg-[#EFFCFC] p-3 text-sm font-medium text-[#006D75]">
+                {message}
+              </p>
+            ) : null}
             <label className="text-sm font-medium text-[#00173C]">
               Email
               <input
@@ -105,6 +118,17 @@ export default function LoginPage() {
                 required
                 className="vp-input mt-2 w-full rounded-lg px-3 py-2 text-sm outline-none"
               />
+            </label>
+            <label className="flex items-start gap-3 rounded-lg border border-[#DCE7F3] bg-[#F8FAFC] p-3 text-sm text-[#00173C]">
+              <input
+                name="rememberMe"
+                type="checkbox"
+                className="mt-1 h-4 w-4 rounded border-[#A9B8C9] text-[#0B3E9F] focus:ring-[rgba(0,158,167,0.24)]"
+              />
+              <span>
+                <span className="block font-semibold">Remember me on this device</span>
+                <span className="mt-1 block text-xs leading-5 text-[#64748B]">Use only on a trusted device.</span>
+              </span>
             </label>
             {error ? (
               <p className="rounded-md border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-800">
