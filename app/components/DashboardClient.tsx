@@ -1,27 +1,36 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { PreparationChecklist } from "@/components/app/PreparationChecklist";
 import { fetchCompanyProfile } from "@/src/lib/companyApi";
+import { fetchMatters } from "@/src/lib/matterApi";
+import { getPreparationChecklist } from "@/src/lib/preparation";
 import { calculatePreparationScore, scorePreparationCategories } from "@/src/lib/preparationScoring";
 import type { CompanyProfile } from "@/src/types/company";
+import type { Matter } from "@/src/types/matter";
 import { EmptyState } from "./EmptyState";
 import { ProgressCard } from "./ProgressCard";
 import { Badge, Button, Card, ProgressBar } from "./ui";
 
 export function DashboardClient() {
   const [data, setData] = useState<CompanyProfile | null>(null);
+  const [matters, setMatters] = useState<Matter[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     queueMicrotask(() => {
-      fetchCompanyProfile()
-        .then(setData)
+      Promise.all([fetchCompanyProfile(), fetchMatters()])
+        .then(([profile, savedMatters]) => {
+          setData(profile);
+          setMatters(savedMatters);
+        })
         .finally(() => setLoaded(true));
     });
   }, []);
 
   const items = useMemo(() => (data ? scorePreparationCategories(data) : []), [data]);
   const score = useMemo(() => calculatePreparationScore(items), [items]);
+  const checklistItems = useMemo(() => getPreparationChecklist({ profile: data, matters }), [data, matters]);
 
   if (!loaded) {
     return <div className="h-48 rounded-lg border border-[#DCE7F3] bg-white" />;
@@ -77,6 +86,9 @@ export function DashboardClient() {
             Review missing items, gather documents, and write focused questions before the conversation.
           </p>
         </Card>
+      </section>
+      <section className="mb-6">
+        <PreparationChecklist items={checklistItems} />
       </section>
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {items.map((item) => (

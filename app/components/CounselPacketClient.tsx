@@ -1,8 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { PreparationChecklist } from "@/components/app/PreparationChecklist";
 import { fetchCompanyProfile } from "@/src/lib/companyApi";
 import { fetchMatters } from "@/src/lib/matterApi";
+import {
+  calculatePreparationCompletion,
+  getPreparationChecklist,
+  getPreparationStatusLabel,
+} from "@/src/lib/preparation";
 import { calculatePreparationScore, scorePreparationCategories } from "@/src/lib/preparationScoring";
 import type { CompanyProfile } from "@/src/types/company";
 import type { Matter } from "@/src/types/matter";
@@ -41,6 +47,9 @@ export function CounselPacketClient() {
     () => matters.find((matter) => matter.id === selectedMatterId) ?? null,
     [matters, selectedMatterId],
   );
+  const checklistItems = useMemo(() => getPreparationChecklist({ profile: data, matters }), [data, matters]);
+  const checklistCompletion = useMemo(() => calculatePreparationCompletion(checklistItems), [checklistItems]);
+  const remainingPreparationGaps = checklistItems.filter((item) => item.status !== "complete");
 
   if (!loaded) {
     return <div className="h-48 rounded-2xl border border-[#DCE7F3] bg-white" />;
@@ -135,8 +144,31 @@ export function CounselPacketClient() {
         selectedMatter?.recommendedNextPreparationStep || "No matter-specific next step submitted.",
         `Primary preparation reason: ${data.priorityMatter || "Not provided"}`,
         `Preparation completion: ${score.percent}%`,
+        `Preparation Checklist completion: ${checklistCompletion}%`,
         `Deadline: ${selectedMatter?.knownDeadline || data.deadline || "Not provided"}`,
         `Preferred format: ${data.communicationFormat || "Not provided"}`,
+      ],
+    },
+    {
+      title: "Preparation Checklist summary",
+      sourceType: "Platform-organized summary",
+      body: checklistItems.map(
+        (item) => `${item.title}: ${getPreparationStatusLabel(item.status)}`,
+      ),
+    },
+    {
+      title: "Remaining preparation gaps",
+      sourceType: remainingPreparationGaps.length > 0 ? "Information requiring verification" : "Platform-organized summary",
+      body:
+        remainingPreparationGaps.length > 0
+          ? remainingPreparationGaps.map((item) => `${item.title}: ${item.suggestedNextAction}`)
+          : ["No remaining Preparation Gaps are shown in the current checklist."],
+    },
+    {
+      title: "Questions for counsel",
+      sourceType: "Founder-supplied facts",
+      body: [
+        selectedMatter?.openQuestions || data.counselQuestions || data.meetingGoals || "No questions for counsel submitted.",
       ],
     },
     {
@@ -242,6 +274,7 @@ export function CounselPacketClient() {
         </div>
       </div>
       <aside className="space-y-5 print:hidden">
+        <PreparationChecklist items={checklistItems} compact />
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-950 shadow-sm">
           This packet was prepared by the founder using VenturePack. It is not a legal opinion and does not provide legal
           advice. It should be reviewed by qualified counsel.
