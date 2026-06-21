@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/src/lib/prisma";
 import {
@@ -146,13 +147,27 @@ export async function POST(request: Request) {
         : generatePitchBriefContent(contentInput);
     const generatedAt = new Date();
     const title = briefType === "COUNSEL_BRIEF" ? "Counsel Brief Preview" : "Pitch Brief Preview";
+    const savedBrief = await prisma.generatedBrief.create({
+      data: {
+        companyId: company.id,
+        userId,
+        checklistSessionId: session.id,
+        briefType,
+        title,
+        generatedContent: content as unknown as Prisma.InputJsonValue,
+        founderApprovalStatus: "draft",
+        generatedAt,
+      },
+    });
 
     return NextResponse.json({
       ok: true,
       brief: {
+        id: savedBrief.id,
         briefType,
         title,
         generatedAt: generatedAt.toISOString(),
+        founderApprovalStatus: savedBrief.founderApprovalStatus,
         content,
       },
     });

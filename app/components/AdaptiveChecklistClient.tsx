@@ -86,9 +86,11 @@ type BriefSection = {
 };
 
 type BriefPreview = {
+  id: string;
   briefType: "COUNSEL_BRIEF" | "PITCH_BRIEF";
   title: string;
   generatedAt: string;
+  founderApprovalStatus?: string;
   content: {
     sections: BriefSection[];
     warnings: string[];
@@ -99,6 +101,15 @@ type BriefPreview = {
 type BriefResponse = {
   ok: boolean;
   brief?: BriefPreview;
+  error?: string;
+};
+
+type BriefReviewResponse = {
+  ok: boolean;
+  brief?: {
+    id: string;
+    founderApprovalStatus: string;
+  };
   error?: string;
 };
 
@@ -180,6 +191,8 @@ export function AdaptiveChecklistClient() {
   const [isSavingSession, setIsSavingSession] = useState(false);
   const [isGeneratingQuestions, setIsGeneratingQuestions] = useState(false);
   const [isGeneratingBrief, setIsGeneratingBrief] = useState(false);
+  const [isSavingBriefReview, setIsSavingBriefReview] = useState(false);
+  const [isDownloadingBrief, setIsDownloadingBrief] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
@@ -265,6 +278,7 @@ export function AdaptiveChecklistClient() {
 
     return map;
   }, [progress]);
+  const isBriefApproved = briefPreview?.founderApprovalStatus === "reviewed";
 
   function updateField(name: keyof FormState, value: string) {
     setFormData((current) => ({ ...current, [name]: value }));
@@ -359,10 +373,88 @@ export function AdaptiveChecklistClient() {
       }
 
       setBriefPreview(payload.brief);
+      setBriefReviewed(payload.brief.founderApprovalStatus === "reviewed");
     } catch {
       setError("Unable to generate brief preview.");
     } finally {
       setIsGeneratingBrief(false);
+    }
+  }
+
+  async function saveBriefReview(reviewed: boolean) {
+    if (!briefPreview) {
+      return;
+    }
+
+    setError("");
+    setIsSavingBriefReview(true);
+
+    try {
+      const response = await fetch(`/api/briefs/${briefPreview.id}/review`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviewed }),
+      });
+      const payload = (await response.json()) as BriefReviewResponse;
+
+      if (!response.ok || !payload.ok) {
+        setError(payload.error || "Unable to save brief review.");
+        return;
+      }
+
+      const isReviewed = payload.brief?.founderApprovalStatus === "reviewed";
+      setBriefReviewed(isReviewed);
+      setBriefPreview((current) =>
+        current
+          ? {
+              ...current,
+              founderApprovalStatus: payload.brief?.founderApprovalStatus ?? (reviewed ? "reviewed" : "draft"),
+            }
+          : current,
+      );
+    } catch {
+      setError("Unable to save brief review.");
+    } finally {
+      setIsSavingBriefReview(false);
+    }
+  }
+
+  async function downloadReviewedBrief() {
+    if (!briefPreview || !isBriefApproved) {
+      return;
+    }
+
+    setError("");
+    setIsDownloadingBrief(true);
+
+    try {
+      const response = await fetch(`/api/briefs/${briefPreview.id}/download`, {
+        method: "GET",
+      });
+
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+        setError(
+          payload?.error === "BRIEF_REVIEW_REQUIRED"
+            ? "Please review the brief before downloading."
+            : payload?.error || "Unable to download PDF.",
+        );
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = briefPreview.briefType === "COUNSEL_BRIEF" ? "venturepack-counsel-brief.pdf" : "venturepack-pitch-brief.pdf";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      setError("Unable to download PDF.");
+    } finally {
+      setIsDownloadingBrief(false);
     }
   }
 
@@ -538,6 +630,9 @@ export function AdaptiveChecklistClient() {
               <p className="mt-2 text-sm leading-6 text-[#64748B]">
                 Generated {new Date(briefPreview.generatedAt).toLocaleString()}
               </p>
+              <p className="mt-4 rounded-xl border border-[#DCE7F3] bg-white p-4 text-sm leading-6 text-[#64748B]">
+                This brief may include missing or unconfirmed information. Review it before sharing.
+              </p>
               {(briefPreview.content.warnings ?? []).length > 0 ? (
                 <div className="mt-4 rounded-xl border border-[#DCE7F3] bg-white p-4">
                   <p className="text-sm font-bold text-[#00173C]">Warnings</p>
@@ -588,17 +683,19 @@ export function AdaptiveChecklistClient() {
                 <input
                   type="checkbox"
                   checked={briefReviewed}
-                  onChange={(event) => setBriefReviewed(event.target.checked)}
+                  onChange={(event) => saveBriefReview(event.target.checked)}
+                  disabled={isSavingBriefReview}
                   className="h-4 w-4 rounded border-[#A9B8C9] text-[#0B3E9F] focus:ring-[rgba(0,158,167,0.24)]"
                 />
                 I reviewed this brief and understand it is based on founder-supplied information.
               </label>
               <button
                 type="button"
-                disabled={!briefReviewed}
-                className="mt-4 rounded-xl border border-[#DCE7F3] bg-white px-5 py-3 text-sm font-semibold text-[#64748B] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-[#94A3B8]"
+                onClick={downloadReviewedBrief}
+                disabled={!isBriefApproved || isSavingBriefReview || isDownloadingBrief}
+                className="mt-4 rounded-xl bg-[#0B3E9F] px-5 py-3 text-sm font-semibold text-white hover:bg-[#00173C] focus:outline-none focus:ring-4 focus:ring-[rgba(0,158,167,0.24)] disabled:cursor-not-allowed disabled:bg-slate-400 disabled:text-white"
               >
-                PDF Download Coming Next
+                {isDownloadingBrief ? "Preparing PDF..." : "Download PDF"}
               </button>
             </div>
           </div>
