@@ -16,6 +16,43 @@ function cleanText(value: string) {
   return value.replace(/\s+/g, " ").trim();
 }
 
+function normalizeForCompare(value: string) {
+  return cleanText(value).toLowerCase();
+}
+
+export function dedupeStrings(items: string[]): string[] {
+  const result: string[] = [];
+
+  for (const item of items) {
+    const trimmed = cleanText(item);
+    const normalized = normalizeForCompare(trimmed);
+
+    if (!normalized) {
+      continue;
+    }
+
+    const isDuplicate = result.some((existing) => {
+      const existingNormalized = normalizeForCompare(existing);
+
+      return (
+        existingNormalized === normalized ||
+        existingNormalized.includes(normalized) ||
+        normalized.includes(existingNormalized)
+      );
+    });
+
+    if (!isDuplicate) {
+      result.push(trimmed);
+    }
+
+    if (result.length >= 5) {
+      break;
+    }
+  }
+
+  return result;
+}
+
 function itemLabel(item: { title: string; description?: string; suggestedNextAction?: string }) {
   return cleanText(item.title || item.description || item.suggestedNextAction || "this checklist item");
 }
@@ -45,7 +82,7 @@ export function getSuggestedMissingDetails(input: InformationSuggestionInput): s
     suggestions.push("Review your preparation checklist and compile any missing facts, dates, documents, people, and open questions.");
   }
 
-  return suggestions.slice(0, 5);
+  return dedupeStrings(suggestions);
 }
 
 export function getQuestionsForCounsel(input: InformationSuggestionInput): string[] {
@@ -60,5 +97,5 @@ export function getQuestionsForCounsel(input: InformationSuggestionInput): strin
     questions.push("Are there specific documents, dates, or people counsel would like us to gather before the next conversation?");
   }
 
-  return questions.slice(0, 5);
+  return dedupeStrings(questions);
 }

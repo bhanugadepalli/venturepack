@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import {
+  dedupeStrings,
   getSuggestedMissingDetails,
   getQuestionsForCounsel,
   type InformationSuggestionInput,
@@ -56,7 +57,6 @@ function safeStringArray(value: unknown) {
         .filter((item): item is string => typeof item === "string")
         .map((item) => item.replace(/\s+/g, " ").trim())
         .filter((item) => item && !blockedTerms.test(item))
-        .slice(0, 5)
     : [];
 }
 
@@ -173,8 +173,10 @@ export async function POST(request: Request) {
         return rulesResponse(input);
       }
 
-      const suggestions = safeStringArray(parsed.suggestions);
-      const questionsForCounsel = safeStringArray(parsed.questionsForCounsel);
+      const ruleSuggestions = getSuggestedMissingDetails(input);
+      const ruleQuestionsForCounsel = getQuestionsForCounsel(input);
+      const suggestions = dedupeStrings([...safeStringArray(parsed.suggestions), ...ruleSuggestions]);
+      const questionsForCounsel = dedupeStrings([...safeStringArray(parsed.questionsForCounsel), ...ruleQuestionsForCounsel]);
 
       if (suggestions.length === 0) {
         return rulesResponse(input);
@@ -184,7 +186,7 @@ export async function POST(request: Request) {
         ok: true,
         provider: "gemini",
         suggestions,
-        questionsForCounsel: questionsForCounsel.length > 0 ? questionsForCounsel : getQuestionsForCounsel(input),
+        questionsForCounsel,
       });
     } catch (error) {
       console.error("GEMINI_SUGGEST_MISSING_DETAILS_ERROR", errorDetails(error));

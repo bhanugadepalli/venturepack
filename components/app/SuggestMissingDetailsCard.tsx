@@ -27,6 +27,44 @@ type SuggestMissingDetailsResult = {
 };
 
 const requestErrorMessage = "Unable to load suggestions. Please try again.";
+const noUniqueSuggestionsMessage = "Your checklist already highlights the main information to compile.";
+
+function normalizeText(value: string) {
+  return value.replace(/\s+/g, " ").trim().toLowerCase();
+}
+
+function dedupeDisplayStrings(items: string[]) {
+  const result: string[] = [];
+
+  for (const item of items) {
+    const trimmed = item.replace(/\s+/g, " ").trim();
+    const normalized = normalizeText(trimmed);
+
+    if (!normalized) {
+      continue;
+    }
+
+    const isDuplicate = result.some((existing) => {
+      const existingNormalized = normalizeText(existing);
+
+      return (
+        existingNormalized === normalized ||
+        existingNormalized.includes(normalized) ||
+        normalized.includes(existingNormalized)
+      );
+    });
+
+    if (!isDuplicate) {
+      result.push(trimmed);
+    }
+
+    if (result.length >= 5) {
+      break;
+    }
+  }
+
+  return result;
+}
 
 export function SuggestMissingDetailsCard({
   companyName,
@@ -40,6 +78,14 @@ export function SuggestMissingDetailsCard({
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [questionsForCounsel, setQuestionsForCounsel] = useState<string[]>([]);
   const isComplete = incompleteItems.length === 0;
+  const checklistActionText = incompleteItems
+    .map((item) => normalizeText(item.suggestedNextAction ?? ""))
+    .filter(Boolean);
+  const displaySuggestions = dedupeDisplayStrings(suggestions).filter(
+    (suggestion) => !checklistActionText.includes(normalizeText(suggestion)),
+  );
+  const displayQuestionsForCounsel = dedupeDisplayStrings(questionsForCounsel);
+  const hasRequestedSuggestions = provider !== "" || suggestions.length > 0 || questionsForCounsel.length > 0;
 
   async function requestSuggestions() {
     if (isComplete) {
@@ -121,11 +167,11 @@ export function SuggestMissingDetailsCard({
         </p>
       ) : null}
 
-      {suggestions.length > 0 ? (
+      {displaySuggestions.length > 0 ? (
         <div className="mt-5 rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-4">
           <h3 className="text-sm font-bold text-[#00173C]">Compile information</h3>
           <ul className="mt-3 space-y-2 text-sm leading-6 text-[#64748B]">
-            {suggestions.map((suggestion) => (
+            {displaySuggestions.map((suggestion) => (
               <li key={suggestion} className="flex gap-3">
                 <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[#009EA7]" />
                 {suggestion}
@@ -135,11 +181,17 @@ export function SuggestMissingDetailsCard({
         </div>
       ) : null}
 
-      {questionsForCounsel.length > 0 ? (
+      {hasRequestedSuggestions && displaySuggestions.length === 0 && !error ? (
+        <p className="mt-5 rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-4 text-sm leading-6 text-[#64748B]">
+          {noUniqueSuggestionsMessage}
+        </p>
+      ) : null}
+
+      {displayQuestionsForCounsel.length > 0 ? (
         <div className="mt-5 rounded-2xl border border-[#DCE7F3] bg-white p-4">
           <h3 className="text-sm font-bold text-[#00173C]">Questions for counsel</h3>
           <ul className="mt-3 space-y-2 text-sm leading-6 text-[#64748B]">
-            {questionsForCounsel.map((question) => (
+            {displayQuestionsForCounsel.map((question) => (
               <li key={question} className="flex gap-3">
                 <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[#0B3E9F]" />
                 {question}
