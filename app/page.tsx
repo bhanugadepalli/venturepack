@@ -1,63 +1,63 @@
 import { MarketingShell } from "@/components/marketing/MarketingShell";
 import { Badge, Button, Card } from "./components/ui";
 
-const productMockup = [
-  ["Preparation dashboard", "72%", "Track company structure, founder alignment, IP, privacy, records, and counsel readiness."],
-  ["Matter preparation", "Investor meeting prep", "Organize objectives, people, documents, open questions, and missing information."],
-  ["Counsel packet preview", "Review required", "Separate founder-supplied facts from platform-organized summaries before download."],
-];
-
-const audiences = [
-  ["Student founders", "Turn early ideas into a cleaner company preparation workspace before the first serious outside conversation."],
-  ["Hackathon teams", "Capture who built what, what is still undecided, and which documents or notes already exist."],
-  ["First-time founders", "Understand the categories counsel may ask about without pretending preparation is legal advice."],
-  ["Accelerators and incubators", "Give cohorts a consistent way to organize facts, gaps, and questions before office hours."],
-];
-
-const howItWorks = [
-  ["1", "Add company facts", "Founder, company, operations, fundraising, and counsel preparation details go into one structured workspace."],
-  ["2", "Track preparation gaps", "Deterministic completion rules show missing items and suggested next preparation steps."],
-  ["3", "Generate a counsel packet", "Create a professional packet preview the founder can review before speaking with qualified counsel."],
+const workflow = [
+  ["01", "Create your workspace", "Capture founder, company, operations, fundraising, and counsel preparation information in one place."],
+  ["02", "Track preparation gaps", "See preparation completion by category with missing information and suggested next preparation actions."],
+  ["03", "Prepare a matter", "Organize objectives, people involved, documents, questions, and missing information for a specific topic."],
+  ["04", "Generate a counsel packet", "Package founder-supplied facts, organized summaries, open questions, and verification notes for counsel review."],
 ];
 
 const features = [
-  ["Company profile", "Keep core startup facts organized by founder, formation, product, operations, and fundraising."],
-  ["Preparation completion", "See transparent category progress without calling it legal readiness, risk scoring, or compliance."],
-  ["Matter workspace", "Prepare for cofounder, contractor, fundraising, customer, investor, and attorney meeting topics."],
-  ["Document inventory", "List available notes, drafts, decks, records, and missing materials without automated contract review."],
-  ["Counsel packet", "Package founder-supplied facts, open questions, missing information, and verification notes."],
-  ["Attorney match intake", "Capture preferences for subject area, jurisdiction, budget, urgency, and communication style."],
+  ["Company workspace", "Keep core startup facts organized by founder, formation, product, operations, customer activity, and fundraising plans."],
+  ["Guided intake", "Work through practical questions that help founders gather the context counsel commonly needs at the beginning."],
+  ["Preparation completion", "Understand which preparation categories are complete, incomplete, or ready for deeper review."],
+  ["Matter preparation", "Create structured matter notes for cofounder, contractor, fundraising, ownership, IP, customer, or attorney meeting topics."],
+  ["Document inventory", "List available materials, drafts, notes, decks, records, and missing documents without analyzing legal terms."],
+  ["Counsel packet", "Generate a founder-reviewed packet with facts, questions, documents, and information requiring verification."],
+];
+
+const audiences = [
+  ["Student founders", "Organize project origins, contributors, product notes, and early ownership questions."],
+  ["Hackathon teams", "Capture who built what, what still needs to be decided, and which materials already exist."],
+  ["First-time founders", "Turn company facts, documents, and questions into a clearer first conversation with counsel."],
+  ["Accelerators and incubators", "Give founder cohorts a consistent preparation structure before office hours or referrals."],
+];
+
+const pricing = [
+  ["Free", "Start with guided onboarding, company workspace, preparation dashboard, and matter templates."],
+  ["Founder", "Counsel packet workflows and preparation history are planned for founder teams."],
+  ["Cohort", "Program seats and founder preparation workflows for accelerators, clinics, and incubators."],
 ];
 
 export default function Home() {
   return (
     <MarketingShell>
       <section className="relative overflow-hidden bg-gradient-to-br from-[#00173C] via-[#0B3E9F] to-[#009EA7]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(255,255,255,0.22),transparent_28%),radial-gradient(circle_at_82%_14%,rgba(0,158,167,0.34),transparent_30%),linear-gradient(180deg,rgba(0,23,60,0),rgba(0,23,60,0.22))]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(255,255,255,0.18),transparent_28%),radial-gradient(circle_at_82%_20%,rgba(0,158,167,0.28),transparent_32%),linear-gradient(180deg,rgba(0,23,60,0.08),rgba(0,23,60,0.34))]" />
         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#F8FAFC] to-transparent" />
-        <div className="relative mx-auto flex min-h-[88vh] max-w-7xl flex-col px-6 py-6 sm:px-8 lg:px-10">
-          <div className="grid flex-1 items-center gap-12 py-16 lg:grid-cols-[1.02fr_0.98fr] lg:py-20">
+        <div className="relative mx-auto max-w-7xl px-6 py-20 sm:px-8 lg:px-10 lg:py-24">
+          <div className="grid items-center gap-14 lg:grid-cols-[1.02fr_0.98fr]">
             <div className="max-w-3xl">
               <span className="inline-flex w-fit rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-white shadow-sm backdrop-blur">
-                Startup preparation workspace
+                Founder preparation platform
               </span>
               <h1 className="mt-6 text-5xl font-bold leading-[1.02] tracking-tight text-white sm:text-6xl lg:text-7xl">
                 Prepare your startup before the first legal conversation.
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-[#DCE7F3]">
-                VenturePack helps first-time founders organize company facts, track preparation gaps, and generate
-                counsel packets before speaking with an attorney.
+                VenturePack helps first-time founders turn scattered company facts into a structured counsel packet before speaking with an attorney.
               </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <Button href="/signup" className="bg-white px-5 py-3 text-[#00173C] shadow-lg shadow-[#00173C]/20 hover:bg-[#F8FAFC]">
-                  Start preparation
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <Button href="/signup" className="bg-[#0B3E9F] px-5 py-3 text-white shadow-lg shadow-[#00173C]/20 hover:bg-[#00173C]">
+                  Start Preparing
                 </Button>
-                <Button href="/use-cases" variant="secondary" className="border-white/25 bg-white/10 px-5 py-3 text-white backdrop-blur hover:border-white/50 hover:bg-white/15">
-                  Explore use cases
+                <Button href="/how-it-works" variant="secondary" className="border-white/25 bg-white/10 px-5 py-3 text-white backdrop-blur hover:border-white/50 hover:bg-white/15">
+                  See How It Works
                 </Button>
               </div>
-              <div className="mt-8 grid max-w-xl gap-3 text-sm text-white/80 sm:grid-cols-3">
-                {["Company facts", "Preparation gaps", "Counsel packets"].map((item) => (
+              <div className="mt-10 grid max-w-2xl gap-3 text-sm text-white/85 sm:grid-cols-3">
+                {["Company facts", "Preparation gaps", "Counsel packet"].map((item) => (
                   <div key={item} className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur">
                     <span className="block h-1 w-8 rounded-full bg-[#009EA7]" />
                     <p className="mt-3 font-semibold">{item}</p>
@@ -82,7 +82,7 @@ export default function Home() {
                   <div className="rounded-2xl border border-[#DCE7F3] bg-white p-4 shadow-sm">
                     <div className="flex items-center justify-between gap-4">
                       <div>
-                        <p className="text-sm font-bold text-[#00173C]">Preparation dashboard</p>
+                        <p className="text-sm font-bold text-[#00173C]">Preparation completion</p>
                         <p className="mt-1 text-xs leading-5 text-[#64748B]">Company structure, ownership, IP, privacy, fundraising, and records.</p>
                       </div>
                       <span className="text-3xl font-bold text-[#0B3E9F]">72%</span>
@@ -93,15 +93,15 @@ export default function Home() {
                   </div>
                   <div className="mt-4 grid gap-4 sm:grid-cols-2">
                     <div className="rounded-2xl border border-[#DCE7F3] bg-white p-4 shadow-sm">
-                      <p className="text-sm font-bold text-[#00173C]">Matter preparation</p>
+                      <p className="text-sm font-bold text-[#00173C]">Matter status</p>
                       <p className="mt-2 text-xs leading-5 text-[#64748B]">Objectives, people, documents, questions, and missing information.</p>
                       <span className="mt-4 inline-flex rounded-full bg-[rgba(0,158,167,0.10)] px-2.5 py-1 text-xs font-bold text-[#008787]">
-                        Investor meeting prep
+                        Ready for counsel review
                       </span>
                     </div>
                     <div className="rounded-2xl border border-[#DCE7F3] bg-white p-4 shadow-sm">
-                      <p className="text-sm font-bold text-[#00173C]">Counsel packet preview</p>
-                      <p className="mt-2 text-xs leading-5 text-[#64748B]">Founder facts, platform summary, and verification notes separated.</p>
+                      <p className="text-sm font-bold text-[#00173C]">Counsel packet</p>
+                      <p className="mt-2 text-xs leading-5 text-[#64748B]">Founder facts, organized summary, and verification notes separated.</p>
                       <span className="mt-4 inline-flex rounded-full bg-[rgba(0,158,167,0.10)] px-2.5 py-1 text-xs font-bold text-[#008787]">
                         Review required
                       </span>
@@ -124,61 +124,23 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-6 py-20 sm:px-8 lg:px-10">
-        <div className="mx-auto max-w-7xl">
-          <div className="grid gap-10 lg:grid-cols-[0.88fr_1.12fr] lg:items-center">
-            <div>
-              <Badge tone="indigo">Product mockup</Badge>
-              <h2 className="mt-4 text-4xl font-bold tracking-tight">One workspace for facts, gaps, matters, and packets.</h2>
-              <p className="mt-4 text-lg leading-8 text-[#64748B]">
-                The first version of VenturePack focuses on the work founders can do before counsel: organizing what
-                they know, naming what is missing, and preparing better questions.
-              </p>
-            </div>
-            <div className="grid gap-4 rounded-3xl border border-[#DCE7F3] bg-white p-5 shadow-xl shadow-slate-200/70">
-              {productMockup.map(([title, metric, detail]) => (
-                <div key={title} className="rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-5">
-                  <div className="flex items-center justify-between gap-4">
-                    <h3 className="font-bold">{title}</h3>
-                    <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#008787] shadow-sm">{metric}</span>
-                  </div>
-                  <p className="mt-2 text-sm leading-6 text-[#64748B]">{detail}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-y border-[#DCE7F3] bg-white px-6 py-20 sm:px-8 lg:px-10">
-        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+      <section className="px-6 py-24 sm:px-8 lg:px-10">
+        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div>
-            <Badge tone="blue">Company first</Badge>
-            <h2 className="mt-4 text-4xl font-bold tracking-tight">Start with the company, not the contract.</h2>
+            <Badge>Problem</Badge>
+            <h2 className="mt-4 text-4xl font-bold tracking-tight text-[#00173C] sm:text-5xl">
+              Founders rarely lack ambition. They lack organized facts.
+            </h2>
           </div>
-          <div className="space-y-4 text-lg leading-8 text-[#64748B]">
-            <p>
-              Early legal conversations are often slowed down by basic missing context: who the founders are, what has
-              been built, where the company operates, whether money has been accepted, and which documents already exist.
-            </p>
-            <p>
-              VenturePack keeps the first motion centered on company preparation and founder questions. It does not
-              review clauses, flag contract issues, or make legal conclusions.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="px-6 py-20 sm:px-8 lg:px-10">
-        <div className="mx-auto max-w-7xl">
-          <div className="max-w-3xl">
-            <Badge tone="green">Who it helps</Badge>
-            <h2 className="mt-4 text-4xl font-bold tracking-tight">Built for founders and programs preparing for better first conversations.</h2>
-          </div>
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {audiences.map(([title, body]) => (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {[
+              ["Founder alignment", "Roles, ownership conversations, and contribution history are often scattered across chats and notes."],
+              ["Company context", "Entity status, operating locations, product stage, customer activity, and data practices need one clean home."],
+              ["Matter context", "Specific questions for counsel need objectives, documents, people involved, and missing information."],
+              ["Preparation gaps", "Founders benefit from seeing what is complete and what still needs to be gathered."],
+            ].map(([title, body]) => (
               <Card key={title} className="shadow-sm">
-                <h3 className="text-lg font-bold">{title}</h3>
+                <h3 className="text-lg font-bold text-[#00173C]">{title}</h3>
                 <p className="mt-3 text-sm leading-6 text-[#64748B]">{body}</p>
               </Card>
             ))}
@@ -186,41 +148,76 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="border-y border-[#DCE7F3] bg-[rgba(0,158,167,0.10)] px-6 py-20 sm:px-8 lg:px-10">
-        <div className="mx-auto max-w-7xl">
-          <div className="max-w-3xl">
-            <Badge tone="blue">How it works</Badge>
-            <h2 className="mt-4 text-4xl font-bold tracking-tight">A simple preparation flow from workspace to packet.</h2>
+      <section className="border-y border-[#DCE7F3] bg-white px-6 py-24 sm:px-8 lg:px-10">
+        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+          <div className="rounded-3xl border border-[#DCE7F3] bg-[#F8FAFC] p-5 shadow-xl shadow-slate-200/60">
+            <div className="rounded-2xl border border-[#DCE7F3] bg-white p-6">
+              <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#008787]">Counsel packet</p>
+              <h3 className="mt-4 text-2xl font-bold text-[#00173C]">Founder-supplied facts</h3>
+              <p className="mt-3 text-sm leading-6 text-[#64748B]">Company overview, founder information, operations summary, fundraising summary, documents, and questions for counsel.</p>
+            </div>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <div className="rounded-2xl border border-[#DCE7F3] bg-white p-5">
+                <h3 className="text-sm font-bold text-[#00173C]">Organized summary</h3>
+                <p className="mt-2 text-sm leading-6 text-[#64748B]">A structured preview of the matter and preparation notes.</p>
+              </div>
+              <div className="rounded-2xl border border-[#DCE7F3] bg-white p-5">
+                <h3 className="text-sm font-bold text-[#00173C]">Verification notes</h3>
+                <p className="mt-2 text-sm leading-6 text-[#64748B]">Items that should be confirmed before counsel relies on them.</p>
+              </div>
+            </div>
           </div>
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {howItWorks.map(([step, title, body]) => (
-              <Card key={title}>
-                <span className="flex size-10 items-center justify-center rounded-xl bg-[#0B3E9F] text-sm font-bold text-white">
-                  {step}
-                </span>
-                <h3 className="mt-5 text-xl font-bold">{title}</h3>
-                <p className="mt-3 text-sm leading-6 text-[#64748B]">{body}</p>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="px-6 py-20 sm:px-8 lg:px-10">
-        <div className="mx-auto max-w-7xl">
-          <div className="max-w-3xl">
-            <Badge tone="indigo">Feature grid</Badge>
-            <h2 className="mt-4 text-4xl font-bold tracking-tight">Everything in the MVP supports preparation.</h2>
-            <p className="mt-4 text-lg leading-8 text-[#64748B]">
-              VenturePack stays deliberately narrow: company onboarding, preparation completion, matter organization,
-              document inventory, counsel packets, and attorney match intake.
+          <div>
+            <Badge>Outcome</Badge>
+            <h2 className="mt-4 text-4xl font-bold tracking-tight text-[#00173C] sm:text-5xl">
+              Your first legal conversation should not start from scratch.
+            </h2>
+            <p className="mt-5 text-lg leading-8 text-[#64748B]">
+              VenturePack helps founders prepare a clear packet before speaking with counsel, so the first conversation can begin with context instead of scattered explanations.
             </p>
           </div>
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        </div>
+      </section>
+
+      <section className="bg-[#00173C] px-6 py-24 text-white sm:px-8 lg:px-10">
+        <div className="mx-auto max-w-7xl">
+          <div className="max-w-3xl">
+            <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-white">
+              How VenturePack works
+            </span>
+            <h2 className="mt-5 text-4xl font-bold tracking-tight sm:text-5xl">A structured path from workspace to packet.</h2>
+            <p className="mt-4 text-lg leading-8 text-[#DCE7F3]">
+              The workflow keeps preparation practical: gather facts, identify gaps, prepare matters, and generate a packet for counsel review.
+            </p>
+          </div>
+          <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            {workflow.map(([step, title, body]) => (
+              <div key={title} className="rounded-3xl border border-white/15 bg-white/10 p-6 backdrop-blur">
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-sm font-bold text-[#00173C]">{step}</span>
+                <h3 className="mt-6 text-xl font-bold text-white">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-[#DCE7F3]">{body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="px-6 py-24 sm:px-8 lg:px-10">
+        <div className="mx-auto max-w-7xl">
+          <div className="max-w-3xl">
+            <Badge>Features</Badge>
+            <h2 className="mt-4 text-4xl font-bold tracking-tight text-[#00173C] sm:text-5xl">
+              Professional preparation tools for early founders.
+            </h2>
+            <p className="mt-4 text-lg leading-8 text-[#64748B]">
+              VenturePack stays focused on company onboarding, preparation completion, matter organization, document inventory, counsel packets, and attorney match intake.
+            </p>
+          </div>
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {features.map(([title, body]) => (
               <Card key={title} className="shadow-sm">
                 <span className="block h-1.5 w-12 rounded-full bg-[#0B3E9F]" />
-                <h3 className="mt-5 text-xl font-bold">{title}</h3>
+                <h3 className="mt-5 text-xl font-bold text-[#00173C]">{title}</h3>
                 <p className="mt-3 text-sm leading-6 text-[#64748B]">{body}</p>
               </Card>
             ))}
@@ -228,54 +225,100 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-6 pb-20 sm:px-8 lg:px-10">
-        <div className="mx-auto max-w-7xl rounded-3xl bg-[#00173C] p-8 text-white shadow-2xl shadow-slate-300/50 sm:p-10">
-          <Badge tone="amber">Preparation, not legal advice.</Badge>
-          <h2 className="mt-5 max-w-3xl text-4xl font-bold tracking-tight">
-            VenturePack is not a law firm and does not provide legal advice.
-          </h2>
-          <p className="mt-4 max-w-4xl text-base leading-7 text-[#DCE7F3]">
-            VenturePack helps founders organize information, understand general startup preparation concepts, and
-            prepare better questions for qualified counsel. Preparation completion is not legal compliance.
-          </p>
+      <section className="border-y border-[#DCE7F3] bg-white px-6 py-24 sm:px-8 lg:px-10">
+        <div className="mx-auto max-w-7xl">
+          <div className="max-w-3xl">
+            <Badge>Who it is for</Badge>
+            <h2 className="mt-4 text-4xl font-bold tracking-tight text-[#00173C] sm:text-5xl">
+              Built for founders and programs preparing for better first conversations.
+            </h2>
+          </div>
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {audiences.map(([title, body]) => (
+              <Card key={title} className="shadow-sm">
+                <h3 className="text-lg font-bold text-[#00173C]">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-[#64748B]">{body}</p>
+              </Card>
+            ))}
+          </div>
         </div>
       </section>
 
-      <section className="border-y border-[#DCE7F3] bg-white px-6 py-20 sm:px-8 lg:px-10">
+      <section className="bg-gradient-to-br from-[#00173C] via-[#0B3E9F] to-[#008787] px-6 py-24 text-white sm:px-8 lg:px-10">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div>
-            <Badge tone="blue">Founder story</Badge>
-            <h2 className="mt-4 text-4xl font-bold tracking-tight">Built from Akhil&apos;s first-founder problem.</h2>
+            <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-white">
+              Boundaries and trust
+            </span>
+            <h2 className="mt-5 text-4xl font-bold tracking-tight sm:text-5xl">
+              Built for preparation. Designed with boundaries.
+            </h2>
+          </div>
+          <div className="rounded-3xl border border-white/15 bg-white/10 p-6 backdrop-blur sm:p-8">
+            <p className="text-lg leading-8 text-[#EAF4FF]">
+              VenturePack helps founders organize information, understand general preparation concepts, and prepare better questions for counsel. It does not provide legal advice, review contracts, determine compliance, or replace an attorney.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="px-6 py-24 sm:px-8 lg:px-10">
+        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+          <div>
+            <Badge>Founder story</Badge>
+            <h2 className="mt-4 text-4xl font-bold tracking-tight text-[#00173C] sm:text-5xl">
+              Built from Akhil&apos;s first-founder problem.
+            </h2>
           </div>
           <Card className="shadow-sm">
             <p className="text-lg leading-8 text-[#334155]">
-              Akhil is preparing VenturePack as a pre-counsel preparation workspace for startup founders. Before
-              speaking with a startup attorney, he needs to organize company facts, founder questions, product notes,
-              expected operating locations, budget, and open decisions.
+              Akhil is building VenturePack for the moment when a founder knows the company needs legal help, but does not yet have the facts, documents, and questions organized enough for a productive first conversation.
             </p>
             <p className="mt-5 text-base leading-7 text-[#64748B]">
-              VenturePack turns that scattered preparation into a workspace and counsel packet, so the first conversation
-              can start with clearer context and better questions.
+              The product starts where founders start: company information, open decisions, document inventory, preparation gaps, and a counsel packet that can be reviewed before speaking with qualified counsel.
             </p>
           </Card>
         </div>
       </section>
 
-      <section className="px-6 py-20 sm:px-8 lg:px-10">
-        <div className="mx-auto max-w-4xl text-center">
-          <Badge tone="green">Ready to prepare</Badge>
-          <h2 className="mt-5 text-4xl font-bold tracking-tight sm:text-5xl">Build your first preparation workspace.</h2>
-          <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-[#64748B]">
-            Start with company facts, identify preparation gaps, and generate a packet to review before speaking with
-            qualified counsel.
-          </p>
-          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Button href="/signup">Start preparation</Button>
-            <Button href="/signup" variant="secondary">Create account</Button>
+      <section className="border-y border-[#DCE7F3] bg-white px-6 py-24 sm:px-8 lg:px-10">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+            <div className="max-w-3xl">
+              <Badge>Pricing preview</Badge>
+              <h2 className="mt-4 text-4xl font-bold tracking-tight text-[#00173C] sm:text-5xl">Simple paths for founders and cohorts.</h2>
+              <p className="mt-4 text-lg leading-8 text-[#64748B]">
+                Start with a company preparation workspace and choose the path that fits your stage.
+              </p>
+            </div>
+            <Button href="/pricing" variant="secondary">View pricing</Button>
+          </div>
+          <div className="mt-12 grid gap-5 md:grid-cols-3">
+            {pricing.map(([name, body]) => (
+              <Card key={name} className="shadow-sm">
+                <Badge>{name}</Badge>
+                <p className="mt-5 text-sm leading-6 text-[#64748B]">{body}</p>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
 
+      <section className="px-6 py-24 sm:px-8 lg:px-10">
+        <div className="mx-auto max-w-4xl text-center">
+          <Badge>Ready to prepare</Badge>
+          <h2 className="mt-5 text-4xl font-bold tracking-tight text-[#00173C] sm:text-5xl">
+            Walk into the first legal conversation with a clearer starting point.
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-[#64748B]">
+            Create a workspace, organize company facts, track preparation gaps, and generate a counsel packet before speaking with an attorney.
+          </p>
+          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <Button href="/signup">Start Preparing</Button>
+            <Button href="/how-it-works" variant="secondary">See How It Works</Button>
+          </div>
+        </div>
+      </section>
     </MarketingShell>
   );
 }
