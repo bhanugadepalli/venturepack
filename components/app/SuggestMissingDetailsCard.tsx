@@ -1,0 +1,146 @@
+"use client";
+
+import { useState } from "react";
+
+type IncompleteItem = {
+  title: string;
+  description?: string;
+  suggestedNextAction?: string;
+};
+
+type SuggestMissingDetailsCardProps = {
+  companyName?: string;
+  completionPercentage?: number;
+  incompleteItems: IncompleteItem[];
+  context?: {
+    matterType?: string;
+    page?: string;
+  };
+};
+
+type SuggestMissingDetailsResult = {
+  ok: boolean;
+  suggestions?: string[];
+  questionsForCounsel?: string[];
+  error?: string;
+};
+
+const fallbackMessage =
+  "AI suggestions are not available right now. You can still use the checklist to continue compiling your information.";
+
+export function SuggestMissingDetailsCard({
+  companyName,
+  completionPercentage,
+  incompleteItems,
+  context,
+}: SuggestMissingDetailsCardProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [questionsForCounsel, setQuestionsForCounsel] = useState<string[]>([]);
+  const isComplete = incompleteItems.length === 0;
+
+  async function requestSuggestions() {
+    if (isComplete) {
+      return;
+    }
+
+    setIsLoading(true);
+    setError("");
+    setSuggestions([]);
+    setQuestionsForCounsel([]);
+
+    try {
+      const response = await fetch("/api/ai/suggest-missing-details", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          companyName,
+          completionPercentage,
+          incompleteItems,
+          context,
+        }),
+      });
+      const payload = (await response.json()) as SuggestMissingDetailsResult;
+
+      if (!response.ok || !payload.ok) {
+        setError(payload.error || fallbackMessage);
+        return;
+      }
+
+      setSuggestions(payload.suggestions ?? []);
+      setQuestionsForCounsel(payload.questionsForCounsel ?? []);
+    } catch {
+      setError(fallbackMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  return (
+    <section className="rounded-3xl border border-[#DCE7F3] bg-white p-5 shadow-md shadow-[#00173C]/[0.04]">
+      <span className="inline-flex rounded-full bg-[rgba(0,158,167,0.10)] px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-[#008787]">
+        Information Compiling Assistant
+      </span>
+      <h2 className="mt-3 text-xl font-bold text-[#00173C]">Suggested missing details</h2>
+      <p className="mt-3 text-sm leading-6 text-[#64748B]">
+        VenturePack can help identify information that may be useful to compile before generating your counsel packet.
+      </p>
+
+      {isComplete ? (
+        <p className="mt-5 rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-4 text-sm leading-6 text-[#64748B]">
+          Your checklist is complete. Review the packet content before sharing it.
+        </p>
+      ) : (
+        <button
+          type="button"
+          onClick={requestSuggestions}
+          disabled={isLoading}
+          className="mt-5 w-full rounded-xl bg-[#0B3E9F] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#00173C] focus:outline-none focus:ring-4 focus:ring-[rgba(0,158,167,0.24)] disabled:cursor-not-allowed disabled:bg-slate-400"
+        >
+          {isLoading ? "Compiling suggestions..." : "Suggest missing details"}
+        </button>
+      )}
+
+      {error ? (
+        <p className="mt-5 rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-4 text-sm leading-6 text-[#64748B]">
+          {fallbackMessage}
+        </p>
+      ) : null}
+
+      {suggestions.length > 0 ? (
+        <div className="mt-5 rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-4">
+          <h3 className="text-sm font-bold text-[#00173C]">Compile information</h3>
+          <ul className="mt-3 space-y-2 text-sm leading-6 text-[#64748B]">
+            {suggestions.map((suggestion) => (
+              <li key={suggestion} className="flex gap-3">
+                <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[#009EA7]" />
+                {suggestion}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {questionsForCounsel.length > 0 ? (
+        <div className="mt-5 rounded-2xl border border-[#DCE7F3] bg-white p-4">
+          <h3 className="text-sm font-bold text-[#00173C]">Questions for counsel</h3>
+          <ul className="mt-3 space-y-2 text-sm leading-6 text-[#64748B]">
+            {questionsForCounsel.map((question) => (
+              <li key={question} className="flex gap-3">
+                <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[#0B3E9F]" />
+                {question}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      <p className="mt-5 text-xs leading-5 text-[#64748B]">
+        Suggestions are based on founder-supplied information and are for preparation only. VenturePack does not provide legal advice.
+      </p>
+    </section>
+  );
+}

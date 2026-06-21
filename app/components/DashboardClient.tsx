@@ -2,9 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { PreparationChecklist } from "@/components/app/PreparationChecklist";
+import { SuggestMissingDetailsCard } from "@/components/app/SuggestMissingDetailsCard";
 import { fetchCompanyProfile } from "@/src/lib/companyApi";
 import { fetchMatters } from "@/src/lib/matterApi";
-import { calculatePreparationCompletion, getPreparationChecklist } from "@/src/lib/preparation";
+import { calculatePreparationCompletion, getIncompletePreparationItems, getPreparationChecklist } from "@/src/lib/preparation";
 import { calculatePreparationScore, scorePreparationCategories } from "@/src/lib/preparationScoring";
 import type { CompanyProfile } from "@/src/types/company";
 import type { Matter } from "@/src/types/matter";
@@ -32,6 +33,7 @@ export function DashboardClient() {
   const score = useMemo(() => calculatePreparationScore(items), [items]);
   const checklistItems = useMemo(() => getPreparationChecklist({ profile: data, matters }), [data, matters]);
   const checklistCompletion = useMemo(() => calculatePreparationCompletion(checklistItems), [checklistItems]);
+  const incompleteChecklistItems = useMemo(() => getIncompletePreparationItems(checklistItems), [checklistItems]);
 
   if (!loaded) {
     return <div className="h-48 rounded-lg border border-[#DCE7F3] bg-white" />;
@@ -90,19 +92,12 @@ export function DashboardClient() {
       </section>
       <section className="mb-6 grid gap-4 xl:grid-cols-[1fr_360px]">
         <PreparationChecklist items={checklistItems} completionPercentage={checklistCompletion} />
-        <Card className="border-[#009EA7]/30 shadow-md shadow-[#00173C]/[0.04]">
-          <Badge tone="indigo">Suggested missing details</Badge>
-          <h2 className="mt-3 text-xl font-bold text-[#00173C]">Suggested missing details</h2>
-          <p className="mt-3 text-sm leading-6 text-[#64748B]">
-            VenturePack can help identify information that may be useful to compile before generating your counsel packet.
-          </p>
-          <Button href="/app/counsel-packet" className="mt-5 w-full">
-            Review preparation gaps
-          </Button>
-          <p className="mt-4 text-xs leading-5 text-[#64748B]">
-            Suggestions are based on founder-supplied information and are for preparation only. VenturePack does not provide legal advice.
-          </p>
-        </Card>
+        <SuggestMissingDetailsCard
+          companyName={data.companyName}
+          completionPercentage={checklistCompletion}
+          incompleteItems={incompleteChecklistItems}
+          context={{ page: "dashboard" }}
+        />
       </section>
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {items.map((item) => (

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { PreparationChecklist } from "@/components/app/PreparationChecklist";
+import { SuggestMissingDetailsCard } from "@/components/app/SuggestMissingDetailsCard";
 import { fetchCompanyProfile } from "@/src/lib/companyApi";
 import { fetchMatters } from "@/src/lib/matterApi";
 import {
@@ -247,26 +248,34 @@ export function CounselPacketClient() {
           </p>
         </div>
 
-        <aside className="rounded-3xl border border-[#DCE7F3] bg-white p-5 shadow-md shadow-[#00173C]/[0.04]">
-          <h2 className="text-xl font-bold text-[#00173C]">Remaining preparation gaps</h2>
-          {remainingPreparationGaps.length > 0 ? (
-            <div className="mt-4 space-y-3">
-              {remainingPreparationGaps.slice(0, 4).map((item) => (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className="block rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-4 hover:border-[#009EA7] hover:bg-white focus:outline-none focus:ring-4 focus:ring-[rgba(0,158,167,0.16)]"
-                >
-                  <p className="text-sm font-bold text-[#00173C]">{item.title}</p>
-                  <p className="mt-2 text-sm leading-6 text-[#64748B]">{item.suggestedNextAction}</p>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <p className="mt-4 rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-4 text-sm leading-6 text-[#64748B]">
-              Your checklist is complete. Review the packet content before sharing it.
-            </p>
-          )}
+        <aside className="space-y-5">
+          <section className="rounded-3xl border border-[#DCE7F3] bg-white p-5 shadow-md shadow-[#00173C]/[0.04]">
+            <h2 className="text-xl font-bold text-[#00173C]">Remaining preparation gaps</h2>
+            {remainingPreparationGaps.length > 0 ? (
+              <div className="mt-4 space-y-3">
+                {remainingPreparationGaps.slice(0, 4).map((item) => (
+                  <Link
+                    key={item.id}
+                    href={item.href}
+                    className="block rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-4 hover:border-[#009EA7] hover:bg-white focus:outline-none focus:ring-4 focus:ring-[rgba(0,158,167,0.16)]"
+                  >
+                    <p className="text-sm font-bold text-[#00173C]">{item.title}</p>
+                    <p className="mt-2 text-sm leading-6 text-[#64748B]">{item.suggestedNextAction}</p>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-4 rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-4 text-sm leading-6 text-[#64748B]">
+                Your checklist is complete. Review the packet content before sharing it.
+              </p>
+            )}
+          </section>
+          <SuggestMissingDetailsCard
+            companyName={data.companyName}
+            completionPercentage={checklistCompletion}
+            incompleteItems={remainingPreparationGaps}
+            context={{ matterType: selectedMatter?.type, page: "counsel-packet" }}
+          />
         </aside>
       </section>
 
