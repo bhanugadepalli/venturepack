@@ -19,9 +19,11 @@ type ChecklistSession = {
 
 type ChecklistQuestion = {
   id: string;
+  sessionId: string;
   categoryKey: string;
   categoryName: string;
   questionText: string;
+  answerType: string;
   required: boolean;
   whyItMatters: string | null;
   outputUse: string | null;
@@ -41,6 +43,41 @@ type QuestionsResponse = {
   error?: string;
 };
 
+type ProgressCategory = {
+  categoryKey: string;
+  categoryName: string;
+  preparationCompletion: number;
+  requiredQuestionCount: number;
+  answeredRequiredCount: number;
+  missingFacts: string[];
+};
+
+type ProgressResponse = {
+  ok: boolean;
+  ventureProgress: number;
+  categories: ProgressCategory[];
+  topMissingFacts: string[];
+  note: string;
+};
+
+type AnswerDraft = {
+  value: string;
+  evidenceText: string;
+  founderConfirmed: boolean;
+};
+
+type AnswerResponse = {
+  ok: boolean;
+  answer?: {
+    id: string;
+    questionId: string;
+    value: unknown;
+    evidenceText: string | null;
+    founderConfirmed: boolean;
+  };
+  error?: string;
+};
+
 type FormState = {
   businessType: string;
   ventureStage: string;
@@ -57,6 +94,8 @@ const initialFormState: FormState = {
   timeline: "",
 };
 
+const progressNote =
+  "This percentage reflects completion of requested preparation information. It is not a legal opinion, compliance rating, investment judgment, or guarantee.";
 const fieldStyles = "vp-input mt-2 w-full rounded-lg px-3 py-2 text-sm outline-none";
 
 function outputUseLabel(outputUse: string | null) {
@@ -106,11 +145,31 @@ export function AdaptiveChecklistClient() {
   const [formData, setFormData] = useState<FormState>(initialFormState);
   const [session, setSession] = useState<ChecklistSession | null>(null);
   const [questions, setQuestions] = useState<ChecklistQuestion[]>([]);
+  const [progress, setProgress] = useState<ProgressResponse | null>(null);
+  const [answerDrafts, setAnswerDrafts] = useState<Record<string, AnswerDraft>>({});
+  const [savingQuestionId, setSavingQuestionId] = useState("");
+  const [savedQuestionId, setSavedQuestionId] = useState("");
   const [isLoadingSession, setIsLoadingSession] = useState(true);
+  const [isLoadingProgress, setIsLoadingProgress] = useState(false);
   const [isSavingSession, setIsSavingSession] = useState(false);
   const [isGeneratingQuestions, setIsGeneratingQuestions] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  async function refreshProgress() {
+    setIsLoadingProgress(true);
+
+    try {
+      const response = await fetch("/api/checklist/progress", { method: "GET" });
+      const payload = (await response.json()) as ProgressResponse;
+
+      if (response.ok && payload.ok) {
+        setProgress(payload);
+      }
+    } finally {
+      setIsLoadingProgress(false);
+    }
+  }
 
   useEffect(() => {
     let isMounted = true;
@@ -128,6 +187,9 @@ export function AdaptiveChecklistClient() {
         }
 
         setSession(payload.session);
+        if (payload.session) {
+          refreshProgress();
+        }
       } catch {
         if (isMounted) {
           setError("Unable to load checklist session.");
@@ -167,9 +229,88 @@ export function AdaptiveChecklistClient() {
     return groups;
   }, [questions]);
 
+  const progressByCategory = useMemo(() => {
+    const map = new Map<string, ProgressCategory>();
+
+    for (const category of progress?.categories ?? []) {
+      map.set(category.categoryKey, category);
+    }
+
+    return map;
+  }, [progress]);
+
   function updateField(name: keyof FormState, value: string) {
     setFormData((current) => ({ ...current, [name]: value }));
     setFieldErrors((current) => ({ ...current, [name]: "" }));
+  }
+
+  function updateAnswerDraft(questionId: string, values: Partial<AnswerDraft>) {
+    setAnswerDrafts((current) => ({
+      ...current,
+      [questionId]: {
+        value: current[questionId]?.value ?? "",
+        evidenceText: current[questionId]?.evidenceText ?? "",
+        founderConfirmed: current[questionId]?.founderConfirmed ?? false,
+        ...values,
+      },
+    }));
+    setSavedQuestionId("");
+  }
+
+  function answerValueForRequest(question: ChecklistQuestion, draft: AnswerDraft) {
+    if (question.answerType === "boolean") {
+      if (draft.value === "true") return true;
+      if (draft.value === "false") return false;
+      return null;
+    }
+
+    if (question.answerType === "multiselect") {
+      return draft.value
+        .split("\n")
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+
+    return draft.value;
+  }
+
+  async function saveAnswer(question: ChecklistQuestion) {
+    if (!session) {
+      return;
+    }
+
+    setError("");
+    setSavingQuestionId(question.id);
+    setSavedQuestionId("");
+
+    const draft = answerDrafts[question.id] ?? { value: "", evidenceText: "", founderConfirmed: false };
+
+    try {
+      const response = await fetch("/api/checklist/answers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId: session.id,
+          questionId: question.id,
+          value: answerValueForRequest(question, draft),
+          evidenceText: draft.evidenceText,
+          founderConfirmed: draft.founderConfirmed,
+        }),
+      });
+      const payload = (await response.json()) as AnswerResponse;
+
+      if (!response.ok || !payload.ok) {
+        setError(payload.error || "Unable to save answer.");
+        return;
+      }
+
+      setSavedQuestionId(question.id);
+      await refreshProgress();
+    } catch {
+      setError("Unable to save answer.");
+    } finally {
+      setSavingQuestionId("");
+    }
   }
 
   async function createSession(event: React.FormEvent<HTMLFormElement>) {
@@ -194,6 +335,8 @@ export function AdaptiveChecklistClient() {
 
       setSession(payload.session);
       setQuestions([]);
+      setAnswerDrafts({});
+      setProgress(null);
       setFormData({
         businessType: payload.session.businessType,
         ventureStage: payload.session.ventureStage,
@@ -201,6 +344,7 @@ export function AdaptiveChecklistClient() {
         teamStatus: payload.session.teamStatus ?? "",
         timeline: payload.session.timeline ?? "",
       });
+      await refreshProgress();
     } catch {
       setError("Unable to create checklist session.");
     } finally {
@@ -222,11 +366,56 @@ export function AdaptiveChecklistClient() {
       }
 
       setQuestions(payload.questions ?? []);
+      setAnswerDrafts({});
+      setSavedQuestionId("");
+      await refreshProgress();
     } catch {
       setError("Unable to generate questions.");
     } finally {
       setIsGeneratingQuestions(false);
     }
+  }
+
+  function renderAnswerInput(question: ChecklistQuestion) {
+    const draft = answerDrafts[question.id] ?? { value: "", evidenceText: "", founderConfirmed: false };
+
+    if (question.answerType === "textarea" || question.answerType === "multiselect") {
+      return (
+        <textarea
+          value={draft.value}
+          onChange={(event) => updateAnswerDraft(question.id, { value: event.target.value })}
+          rows={question.answerType === "multiselect" ? 4 : 3}
+          placeholder={question.answerType === "multiselect" ? "Add one item per line" : "Add your answer"}
+          className={`${fieldStyles} min-h-24`}
+        />
+      );
+    }
+
+    if (question.answerType === "boolean") {
+      return (
+        <select
+          value={draft.value}
+          onChange={(event) => updateAnswerDraft(question.id, { value: event.target.value })}
+          className={fieldStyles}
+        >
+          <option value="">Select an answer</option>
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+      );
+    }
+
+    const inputType = question.answerType === "date" || question.answerType === "url" ? question.answerType : "text";
+
+    return (
+      <input
+        type={inputType}
+        value={draft.value}
+        onChange={(event) => updateAnswerDraft(question.id, { value: event.target.value })}
+        placeholder="Add your answer"
+        className={fieldStyles}
+      />
+    );
   }
 
   if (isLoadingSession) {
@@ -239,6 +428,18 @@ export function AdaptiveChecklistClient() {
 
   return (
     <div className="grid gap-6 xl:grid-cols-[1fr_22rem]">
+      <section className="xl:col-span-2 rounded-3xl border border-[#DCE7F3] bg-white p-5 shadow-md shadow-[#00173C]/[0.04] sm:p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#008787]">Venture Progress</p>
+            <h2 className="mt-2 text-4xl font-bold tracking-tight text-[#00173C]">
+              {isLoadingProgress ? "..." : `${progress?.ventureProgress ?? 0}%`}
+            </h2>
+          </div>
+          <p className="max-w-3xl text-sm leading-6 text-[#64748B]">{progress?.note ?? progressNote}</p>
+        </div>
+      </section>
+
       <section className="rounded-3xl border border-[#DCE7F3] bg-white p-5 shadow-md shadow-[#00173C]/[0.04] sm:p-6">
         <div className="border-b border-[#DCE7F3] pb-5">
           <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#008787]">Checklist setup</p>
@@ -329,8 +530,20 @@ export function AdaptiveChecklistClient() {
           <ul className="mt-3 space-y-2 text-sm leading-6 text-[#64748B]">
             <li>Create a checklist session</li>
             <li>Generate fixed-category questions</li>
-            <li>Review questions before answer inputs are added</li>
+            <li>Save answers and supporting details</li>
           </ul>
+        </div>
+        <div className="mt-5 rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-4">
+          <p className="text-sm font-semibold text-[#00173C]">Top Missing Facts</p>
+          {(progress?.topMissingFacts ?? []).length > 0 ? (
+            <ul className="mt-3 space-y-2 text-sm leading-6 text-[#64748B]">
+              {progress?.topMissingFacts.map((fact) => (
+                <li key={fact}>{fact}</li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-3 text-sm leading-6 text-[#64748B]">Missing facts will appear after questions are generated.</p>
+          )}
         </div>
       </aside>
 
@@ -352,28 +565,80 @@ export function AdaptiveChecklistClient() {
             {groupedQuestions.map((group) => (
               <article key={group.categoryKey} className="rounded-3xl border border-[#DCE7F3] bg-white p-5 shadow-md shadow-[#00173C]/[0.04]">
                 <div className="flex flex-col gap-2 border-b border-[#DCE7F3] pb-4 sm:flex-row sm:items-center sm:justify-between">
-                  <h3 className="text-xl font-bold text-[#00173C]">{group.categoryName}</h3>
-                  <span className="w-fit rounded-full bg-[rgba(0,158,167,0.10)] px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-[#008787]">
-                    {group.questions.length} questions
-                  </span>
+                  <div>
+                    <h3 className="text-xl font-bold text-[#00173C]">{group.categoryName}</h3>
+                    <p className="mt-1 text-sm font-semibold text-[#64748B]">
+                      Preparation Completion: {progressByCategory.get(group.categoryKey)?.preparationCompletion ?? 0}%
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="w-fit rounded-full bg-[rgba(0,158,167,0.10)] px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-[#008787]">
+                      {group.questions.length} questions
+                    </span>
+                    <span className="w-fit rounded-full border border-[#DCE7F3] bg-white px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-[#64748B]">
+                      {progressByCategory.get(group.categoryKey)?.answeredRequiredCount ?? 0}/
+                      {progressByCategory.get(group.categoryKey)?.requiredQuestionCount ?? 0} required
+                    </span>
+                  </div>
                 </div>
                 <div className="mt-4 grid gap-3">
-                  {group.questions.map((question) => (
-                    <div key={question.id} className="rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-4">
-                      <div className="flex flex-wrap gap-2">
-                        {question.required ? (
-                          <span className="rounded-full bg-[#0B3E9F] px-2.5 py-1 text-xs font-bold text-white">Required</span>
+                  {group.questions.map((question) => {
+                    const draft = answerDrafts[question.id] ?? { value: "", evidenceText: "", founderConfirmed: false };
+
+                    return (
+                      <div key={question.id} className="rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-4">
+                        <div className="flex flex-wrap gap-2">
+                          {question.required ? (
+                            <span className="rounded-full bg-[#0B3E9F] px-2.5 py-1 text-xs font-bold text-white">Required</span>
+                          ) : null}
+                          <span className="rounded-full border border-[rgba(0,158,167,0.22)] bg-white px-2.5 py-1 text-xs font-bold text-[#008787]">
+                            {outputUseLabel(question.outputUse)}
+                          </span>
+                        </div>
+                        <p className="mt-3 text-sm font-bold leading-6 text-[#00173C]">{question.questionText}</p>
+                        {question.whyItMatters ? (
+                          <p className="mt-2 text-sm leading-6 text-[#64748B]">{question.whyItMatters}</p>
                         ) : null}
-                        <span className="rounded-full border border-[rgba(0,158,167,0.22)] bg-white px-2.5 py-1 text-xs font-bold text-[#008787]">
-                          {outputUseLabel(question.outputUse)}
-                        </span>
+
+                        <div className="mt-4 grid gap-4 border-t border-[#DCE7F3] pt-4">
+                          <label className="text-sm font-semibold text-[#00173C]">
+                            Answer
+                            {renderAnswerInput(question)}
+                          </label>
+                          <label className="text-sm font-semibold text-[#00173C]">
+                            Supporting detail or link
+                            <input
+                              type="text"
+                              value={draft.evidenceText}
+                              onChange={(event) => updateAnswerDraft(question.id, { evidenceText: event.target.value })}
+                              placeholder="Add a note, link, filename, or short detail"
+                              className={fieldStyles}
+                            />
+                          </label>
+                          <label className="flex items-center gap-3 text-sm font-semibold text-[#00173C]">
+                            <input
+                              type="checkbox"
+                              checked={draft.founderConfirmed}
+                              onChange={(event) => updateAnswerDraft(question.id, { founderConfirmed: event.target.checked })}
+                              className="h-4 w-4 rounded border-[#A9B8C9] text-[#0B3E9F] focus:ring-[rgba(0,158,167,0.24)]"
+                            />
+                            I reviewed this answer
+                          </label>
+                          <div className="flex flex-wrap items-center gap-3">
+                            <button
+                              type="button"
+                              onClick={() => saveAnswer(question)}
+                              disabled={savingQuestionId === question.id}
+                              className="rounded-xl bg-[#0B3E9F] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#00173C] focus:outline-none focus:ring-4 focus:ring-[rgba(0,158,167,0.24)] disabled:cursor-not-allowed disabled:bg-slate-400"
+                            >
+                              {savingQuestionId === question.id ? "Saving..." : "Save Answer"}
+                            </button>
+                            {savedQuestionId === question.id ? <span className="text-sm font-bold text-[#008787]">Saved</span> : null}
+                          </div>
+                        </div>
                       </div>
-                      <p className="mt-3 text-sm font-bold leading-6 text-[#00173C]">{question.questionText}</p>
-                      {question.whyItMatters ? (
-                        <p className="mt-2 text-sm leading-6 text-[#64748B]">{question.whyItMatters}</p>
-                      ) : null}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </article>
             ))}
