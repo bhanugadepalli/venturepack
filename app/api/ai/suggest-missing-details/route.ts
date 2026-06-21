@@ -1,14 +1,20 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import {
-  getQuestionsForCounsel,
   getSuggestedMissingDetails,
+  getQuestionsForCounsel,
   type InformationSuggestionInput,
 } from "@/src/lib/informationSuggestions";
 
 type SuggestMissingDetailsResponse = {
   suggestions?: unknown;
   questionsForCounsel?: unknown;
+};
+
+type ErrorLike = {
+  name?: unknown;
+  message?: unknown;
+  status?: unknown;
 };
 
 const systemInstruction =
@@ -54,17 +60,37 @@ function safeStringArray(value: unknown) {
     : [];
 }
 
-function parseAssistantJson(text: string): SuggestMissingDetailsResponse {
+function errorDetails(error: unknown) {
+  const record = error && typeof error === "object" ? (error as ErrorLike) : {};
+
+  return {
+    name: typeof record.name === "string" ? record.name : undefined,
+    message: typeof record.message === "string" ? record.message : undefined,
+    status: typeof record.status === "number" || typeof record.status === "string" ? record.status : undefined,
+  };
+}
+
+function parseAssistantJson(text: string): SuggestMissingDetailsResponse | null {
   try {
     return JSON.parse(text) as SuggestMissingDetailsResponse;
-  } catch {
+  } catch (error) {
     const match = text.match(/\{[\s\S]*\}/);
-    if (!match) return {};
+    if (!match) {
+      console.error("GEMINI_JSON_PARSE_ERROR", {
+        ...errorDetails(error),
+        hasJsonObject: false,
+      });
+      return null;
+    }
 
     try {
       return JSON.parse(match[0]) as SuggestMissingDetailsResponse;
-    } catch {
-      return {};
+    } catch (fallbackError) {
+      console.error("GEMINI_JSON_PARSE_ERROR", {
+        ...errorDetails(fallbackError),
+        hasJsonObject: true,
+      });
+      return null;
     }
   }
 }
@@ -111,51 +137,60 @@ function rulesResponse(input: InformationSuggestionInput) {
 }
 
 export async function POST(request: Request) {
-  let body: unknown = {};
-
   try {
-    body = await request.json();
-  } catch {
-    body = {};
-  }
+    let body: unknown = {};
 
-  const input = normalizeBody(body);
-  const apiKey = process.env.GEMINI_API_KEY;
+    try {
+      body = await request.json();
+    } catch {
+      return rulesResponse({});
+    }
 
-  if (!apiKey) {
-    return rulesResponse(input);
-  }
+    const input = normalizeBody(body);
+    const apiKey = process.env.GEMINI_API_KEY;
 
-  try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: process.env.GEMINI_MODEL || "gemini-3.5-flash",
-      systemInstruction,
-    });
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: buildUserPrompt(input) }] }],
-      generationConfig: {
-        temperature: 0.2,
-        maxOutputTokens: 700,
-        responseMimeType: "application/json",
-      },
-    });
-    const parsed = parseAssistantJson(result.response.text());
-    const suggestions = safeStringArray(parsed.suggestions);
-    const questionsForCounsel = safeStringArray(parsed.questionsForCounsel);
-
-    if (suggestions.length === 0) {
+    if (!apiKey) {
       return rulesResponse(input);
     }
 
-    return NextResponse.json({
-      ok: true,
-      provider: "gemini",
-      suggestions,
-      questionsForCounsel: questionsForCounsel.length > 0 ? questionsForCounsel : getQuestionsForCounsel(input),
-    });
-  } catch (error) {
-    console.error("Gemini suggestion generation failed; using rules fallback.", error instanceof Error ? error.message : "Unknown error");
-    return rulesResponse(input);
+    try {
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({
+        model: "gemini-1.5-flash",
+        systemInstruction,
+      });
+      const result = await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: buildUserPrompt(input) }] }],
+        generationConfig: {
+          temperature: 0.2,
+          maxOutputTokens: 700,
+          responseMimeType: "application/json",
+        },
+      });
+      const parsed = parseAssistantJson(result.response.text());
+
+      if (!parsed) {
+        return rulesResponse(input);
+      }
+
+      const suggestions = safeStringArray(parsed.suggestions);
+      const questionsForCounsel = safeStringArray(parsed.questionsForCounsel);
+
+      if (suggestions.length === 0) {
+        return rulesResponse(input);
+      }
+
+      return NextResponse.json({
+        ok: true,
+        provider: "gemini",
+        suggestions,
+        questionsForCounsel: questionsForCounsel.length > 0 ? questionsForCounsel : getQuestionsForCounsel(input),
+      });
+    } catch (error) {
+      console.error("GEMINI_SUGGEST_MISSING_DETAILS_ERROR", errorDetails(error));
+      return rulesResponse(input);
+    }
+  } catch {
+    return rulesResponse({});
   }
 }
