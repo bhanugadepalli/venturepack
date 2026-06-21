@@ -4,6 +4,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "VenturePack",
   description: "Prepare your startup before the first legal conversation.",
+  icons: {
+    icon: "/icon.png",
+    apple: "/apple-icon.png",
+  },
   openGraph: {
     title: "VenturePack",
     description: "Prepare your startup before the first legal conversation.",
