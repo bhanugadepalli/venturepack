@@ -15,6 +15,7 @@ const navItems = [
   { href: "/app/counsel-packet", label: "Counsel packet", group: "Preparation" },
   { href: "/app/attorney-match", label: "Attorney match", group: "Preparation" },
   { href: "/app/settings", label: "Settings", group: "Account" },
+  { href: "/app/billing", label: "Billing", group: "Account" },
   { href: "/admin", label: "Admin", group: "Admin" },
   { href: "/admin/sources", label: "Sources", group: "Admin" },
   { href: "/admin/risk-rules", label: "Risk rules", group: "Admin" },

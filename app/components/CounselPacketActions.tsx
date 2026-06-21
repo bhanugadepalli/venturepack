@@ -2,6 +2,7 @@
 
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 import { useState } from "react";
+import { UpgradeCard } from "@/components/app/UpgradeCard";
 
 type PacketSection = {
   title: string;
@@ -30,6 +31,7 @@ const page = {
 export function CounselPacketActions({ packet }: { packet: CounselPacketPdfData }) {
   const [reviewed, setReviewed] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
 
   async function downloadPacket() {
     setIsGenerating(true);
@@ -52,26 +54,32 @@ export function CounselPacketActions({ packet }: { packet: CounselPacketPdfData 
   }
 
   return (
-    <div className="rounded-3xl border border-[#DCE7F3] bg-white p-5 shadow-sm">
-      <label className="flex items-start gap-3 text-sm leading-6 text-[#00173C]">
-        <input
-          type="checkbox"
-          checked={reviewed}
-          onChange={(event) => setReviewed(event.target.checked)}
-          className="mt-1 size-4 accent-[#009EA7]"
-        />
-        <span>
-          I have reviewed this packet and understand it is not legal advice.
-        </span>
-      </label>
-      <button
-        type="button"
-        onClick={downloadPacket}
-        disabled={!reviewed || isGenerating}
-        className="mt-5 rounded-xl bg-[#0B3E9F] px-5 py-3 text-sm font-semibold text-white hover:bg-[#00173C] focus:outline-none focus:ring-4 focus:ring-[rgba(0,158,167,0.24)] disabled:cursor-not-allowed disabled:bg-slate-300"
-      >
-        {isGenerating ? "Preparing PDF..." : "Download PDF"}
-      </button>
+    <div className="space-y-5">
+      <div className="rounded-3xl border border-[#DCE7F3] bg-white p-5 shadow-sm">
+        <label className="flex items-start gap-3 text-sm leading-6 text-[#00173C]">
+          <input
+            type="checkbox"
+            checked={reviewed}
+            onChange={(event) => setReviewed(event.target.checked)}
+            className="mt-1 size-4 accent-[#009EA7]"
+          />
+          <span>
+            I have reviewed this packet and understand it is not legal advice.
+          </span>
+        </label>
+        <p className="mt-4 rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-4 text-sm leading-6 text-[#64748B]">
+          Founder access will unlock counsel packet downloads and advanced preparation workflows.
+        </p>
+        <button
+          type="button"
+          onClick={() => setShowUpgrade(true)}
+          disabled={!reviewed || isGenerating}
+          className="mt-5 rounded-xl bg-[#0B3E9F] px-5 py-3 text-sm font-semibold text-white hover:bg-[#00173C] focus:outline-none focus:ring-4 focus:ring-[rgba(0,158,167,0.24)] disabled:cursor-not-allowed disabled:bg-slate-300"
+        >
+          {isGenerating ? "Preparing PDF..." : "Download PDF"}
+        </button>
+      </div>
+      {showUpgrade ? <UpgradeCard /> : null}
     </div>
   );
 }

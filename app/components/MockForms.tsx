@@ -7,10 +7,11 @@ import {
   akhilDemoData,
   emptyOnboardingData,
 } from "@/src/lib/demoStorage";
-import { fetchAttorneyMatchRequest, saveAttorneyMatchRequestToApi } from "@/src/lib/attorneyMatchApi";
+import { fetchAttorneyMatchRequest } from "@/src/lib/attorneyMatchApi";
 import { fetchCompanyProfile, saveCompanyProfileToApi } from "@/src/lib/companyApi";
 import type { AttorneyMatchRequest } from "@/src/types/attorneyMatch";
 import type { CompanyProfile } from "@/src/types/company";
+import { UpgradeCard } from "@/components/app/UpgradeCard";
 
 const onboardingSections = [
   {
@@ -212,7 +213,7 @@ export function OnboardingForm() {
 export function AttorneyMatchForm() {
   const [submittedRequest, setSubmittedRequest] = useState<AttorneyMatchRequest | null>(null);
   const [loaded, setLoaded] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
 
   useEffect(() => {
     fetchAttorneyMatchRequest()
@@ -230,26 +231,7 @@ export function AttorneyMatchForm() {
         className="rounded-3xl border border-[#DCE7F3] bg-white p-5 shadow-md shadow-[#00173C]/[0.04]"
         onSubmit={(event) => {
           event.preventDefault();
-          setIsSaving(true);
-          const formData = new FormData(event.currentTarget);
-          const request: AttorneyMatchRequest = {
-            legalSubjectArea: String(formData.get("legalSubjectArea") ?? ""),
-            stateOrJurisdiction: String(formData.get("stateOrJurisdiction") ?? ""),
-            companyStage: String(formData.get("companyStage") ?? ""),
-            matterUrgency: String(formData.get("matterUrgency") ?? ""),
-            preferredPricingStructure: String(formData.get("preferredPricingStructure") ?? ""),
-            estimatedBudget: String(formData.get("estimatedBudget") ?? ""),
-            preferredCommunicationMethod: String(formData.get("preferredCommunicationMethod") ?? ""),
-            languagePreferences: String(formData.get("languagePreferences") ?? ""),
-            virtualOrLocalCounsel: String(formData.get("virtualOrLocalCounsel") ?? ""),
-            alreadyHasCounsel: String(formData.get("alreadyHasCounsel") ?? ""),
-            consentToShareSummary: formData.get("consentToShareSummary") === "on",
-            submittedAt: new Date().toISOString(),
-          };
-
-          saveAttorneyMatchRequestToApi(request)
-            .then(setSubmittedRequest)
-            .finally(() => setIsSaving(false));
+          setShowUpgrade(true);
         }}
       >
         <div className="border-b border-[#DCE7F3] pb-4">
@@ -308,13 +290,16 @@ export function AttorneyMatchForm() {
         <button
           className="mt-5 rounded-xl bg-[#0B3E9F] focus:outline-none focus:ring-4 focus:ring-[rgba(0,158,167,0.24)] px-5 py-3 text-sm font-semibold text-white hover:bg-[#00173C] disabled:cursor-not-allowed disabled:bg-slate-400"
           type="submit"
-          disabled={isSaving}
         >
-          {isSaving ? "Saving request..." : "Save matching request"}
+          Save matching request
         </button>
+        <p className="mt-4 rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-4 text-sm leading-6 text-[#64748B]">
+          Founder access will unlock counsel packet downloads and advanced preparation workflows.
+        </p>
       </form>
 
       <aside className="space-y-5">
+        {showUpgrade ? <UpgradeCard /> : null}
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-950 shadow-sm">
           VenturePack does not guarantee attorney matching. Attorneys independently decide whether to accept a matter.
           Representation begins only through a separate attorney engagement process.
