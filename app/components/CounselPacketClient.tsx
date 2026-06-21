@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { PreparationChecklist } from "@/components/app/PreparationChecklist";
 import { fetchCompanyProfile } from "@/src/lib/companyApi";
@@ -7,6 +8,7 @@ import { fetchMatters } from "@/src/lib/matterApi";
 import {
   calculatePreparationCompletion,
   getPreparationChecklist,
+  getIncompletePreparationItems,
   getPreparationStatusLabel,
 } from "@/src/lib/preparation";
 import { calculatePreparationScore, scorePreparationCategories } from "@/src/lib/preparationScoring";
@@ -49,7 +51,7 @@ export function CounselPacketClient() {
   );
   const checklistItems = useMemo(() => getPreparationChecklist({ profile: data, matters }), [data, matters]);
   const checklistCompletion = useMemo(() => calculatePreparationCompletion(checklistItems), [checklistItems]);
-  const remainingPreparationGaps = checklistItems.filter((item) => item.status !== "complete");
+  const remainingPreparationGaps = useMemo(() => getIncompletePreparationItems(checklistItems), [checklistItems]);
 
   if (!loaded) {
     return <div className="h-48 rounded-2xl border border-[#DCE7F3] bg-white" />;
@@ -211,7 +213,7 @@ export function CounselPacketClient() {
       title: "Disclaimer",
       sourceType: "Information requiring verification",
       body: [
-        "This packet was prepared by the founder using VenturePack. It is not a legal opinion and does not provide legal advice. It should be reviewed by qualified counsel.",
+        "This packet was prepared by the founder using VenturePack. It does not provide legal advice and should be reviewed by qualified counsel.",
       ],
     },
   ];
@@ -229,8 +231,47 @@ export function CounselPacketClient() {
   };
 
   return (
-    <section className="grid gap-5 print:block xl:grid-cols-[1fr_360px]">
-      <div className="rounded-3xl border border-[#DCE7F3] bg-white p-6 shadow-md shadow-[#00173C]/[0.04] print:border-0 print:p-0 print:shadow-none">
+    <div className="space-y-5">
+      <section className="grid gap-5 xl:grid-cols-[1fr_360px]">
+        <div className="rounded-3xl border border-[#DCE7F3] bg-white p-5 shadow-md shadow-[#00173C]/[0.04]">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#008787]">Packet preparation summary</p>
+          <h2 className="mt-2 text-2xl font-bold tracking-tight text-[#00173C]">Packet preparation summary</h2>
+          <p className="mt-2 text-sm leading-6 text-[#64748B]">
+            Review your preparation checklist before generating or downloading a counsel packet.
+          </p>
+          <div className="mt-5">
+            <PreparationChecklist items={checklistItems} completionPercentage={checklistCompletion} compact />
+          </div>
+          <p className="mt-5 rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-4 text-sm leading-6 text-[#64748B]">
+            Preparation completion reflects the information compiled in VenturePack. It is not legal compliance and does not replace professional counsel.
+          </p>
+        </div>
+
+        <aside className="rounded-3xl border border-[#DCE7F3] bg-white p-5 shadow-md shadow-[#00173C]/[0.04]">
+          <h2 className="text-xl font-bold text-[#00173C]">Remaining preparation gaps</h2>
+          {remainingPreparationGaps.length > 0 ? (
+            <div className="mt-4 space-y-3">
+              {remainingPreparationGaps.slice(0, 4).map((item) => (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className="block rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-4 hover:border-[#009EA7] hover:bg-white focus:outline-none focus:ring-4 focus:ring-[rgba(0,158,167,0.16)]"
+                >
+                  <p className="text-sm font-bold text-[#00173C]">{item.title}</p>
+                  <p className="mt-2 text-sm leading-6 text-[#64748B]">{item.suggestedNextAction}</p>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-4 rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-4 text-sm leading-6 text-[#64748B]">
+              Your checklist is complete. Review the packet content before sharing it.
+            </p>
+          )}
+        </aside>
+      </section>
+
+      <section className="grid gap-5 print:block xl:grid-cols-[1fr_360px]">
+        <div className="rounded-3xl border border-[#DCE7F3] bg-white p-6 shadow-md shadow-[#00173C]/[0.04] print:border-0 print:p-0 print:shadow-none">
         <div className="rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-5 print:break-after-avoid">
           <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#008787]">Counsel packet preview</p>
           <h2 className="mt-2 text-3xl font-bold tracking-tight">{data.companyName || "Company packet"}</h2>
@@ -253,7 +294,7 @@ export function CounselPacketClient() {
             </select>
           </label>
         </div>
-        <div className="mt-5 grid gap-4 print:block">
+          <div className="mt-5 grid gap-4 print:block">
           {packetSections.map((section) => (
             <article key={section.title} className="rounded-2xl border border-[#DCE7F3] bg-white p-4 shadow-sm print:mb-4 print:break-inside-avoid print:border-[#DCE7F3]">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -271,16 +312,16 @@ export function CounselPacketClient() {
               </ul>
             </article>
           ))}
+          </div>
         </div>
-      </div>
-      <aside className="space-y-5 print:hidden">
-        <PreparationChecklist items={checklistItems} completionPercentage={checklistCompletion} compact />
+        <aside className="space-y-5 print:hidden">
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-950 shadow-sm">
-          This packet was prepared by the founder using VenturePack. It is not a legal opinion and does not provide legal
-          advice. It should be reviewed by qualified counsel.
+          This packet was prepared by the founder using VenturePack. It does not provide legal advice and should be
+          reviewed by qualified counsel.
         </div>
         <CounselPacketActions packet={packet} />
-      </aside>
-    </section>
+        </aside>
+      </section>
+    </div>
   );
 }

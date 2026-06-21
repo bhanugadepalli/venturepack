@@ -20,7 +20,7 @@ type CounselPacketPdfData = {
 };
 
 const disclaimer =
-  "This packet was prepared by the founder using VenturePack. It is not a legal opinion and does not provide legal advice. It should be reviewed by qualified counsel.";
+  "This packet was prepared by the founder using VenturePack. It does not provide legal advice and should be reviewed by qualified counsel.";
 
 const page = {
   width: 612,
