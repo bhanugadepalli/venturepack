@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { dedupeStrings, normalizeSuggestionKey } from "@/src/lib/informationSuggestions";
 
 type IncompleteItem = {
   title: string;
@@ -27,44 +28,7 @@ type SuggestMissingDetailsResult = {
 };
 
 const requestErrorMessage = "Unable to load suggestions. Please try again.";
-const noUniqueSuggestionsMessage = "Your checklist already highlights the main information to compile.";
-
-function normalizeText(value: string) {
-  return value.replace(/\s+/g, " ").trim().toLowerCase();
-}
-
-function dedupeDisplayStrings(items: string[]) {
-  const result: string[] = [];
-
-  for (const item of items) {
-    const trimmed = item.replace(/\s+/g, " ").trim();
-    const normalized = normalizeText(trimmed);
-
-    if (!normalized) {
-      continue;
-    }
-
-    const isDuplicate = result.some((existing) => {
-      const existingNormalized = normalizeText(existing);
-
-      return (
-        existingNormalized === normalized ||
-        existingNormalized.includes(normalized) ||
-        normalized.includes(existingNormalized)
-      );
-    });
-
-    if (!isDuplicate) {
-      result.push(trimmed);
-    }
-
-    if (result.length >= 5) {
-      break;
-    }
-  }
-
-  return result;
-}
+const noUniqueSuggestionsMessage = "Your checklist already highlights the main details to compile.";
 
 export function SuggestMissingDetailsCard({
   companyName,
@@ -78,13 +42,11 @@ export function SuggestMissingDetailsCard({
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [questionsForCounsel, setQuestionsForCounsel] = useState<string[]>([]);
   const isComplete = incompleteItems.length === 0;
-  const checklistActionText = incompleteItems
-    .map((item) => normalizeText(item.suggestedNextAction ?? ""))
-    .filter(Boolean);
-  const displaySuggestions = dedupeDisplayStrings(suggestions).filter(
-    (suggestion) => !checklistActionText.includes(normalizeText(suggestion)),
+  const checklistActionText = incompleteItems.map((item) => item.suggestedNextAction ?? "").filter(Boolean);
+  const displaySuggestions = dedupeStrings(suggestions, checklistActionText).filter(
+    (suggestion) => normalizeSuggestionKey(suggestion) !== normalizeSuggestionKey("compile information"),
   );
-  const displayQuestionsForCounsel = dedupeDisplayStrings(questionsForCounsel);
+  const displayQuestionsForCounsel = dedupeStrings(questionsForCounsel);
   const hasRequestedSuggestions = provider !== "" || suggestions.length > 0 || questionsForCounsel.length > 0;
 
   async function requestSuggestions() {
@@ -135,7 +97,7 @@ export function SuggestMissingDetailsCard({
       </span>
       <h2 className="mt-3 text-xl font-bold text-[#00173C]">Suggested missing details</h2>
       <p className="mt-3 text-sm leading-6 text-[#64748B]">
-        VenturePack can help identify information that may be useful to compile before generating your counsel packet.
+        VenturePack can help identify details to prepare for your counsel packet.
       </p>
 
       {isComplete ? (
@@ -169,7 +131,7 @@ export function SuggestMissingDetailsCard({
 
       {displaySuggestions.length > 0 ? (
         <div className="mt-5 rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-4">
-          <h3 className="text-sm font-bold text-[#00173C]">Compile information</h3>
+          <h3 className="text-sm font-bold text-[#00173C]">Details to prepare</h3>
           <ul className="mt-3 space-y-2 text-sm leading-6 text-[#64748B]">
             {displaySuggestions.map((suggestion) => (
               <li key={suggestion} className="flex gap-3">

@@ -136,6 +136,10 @@ function rulesResponse(input: InformationSuggestionInput) {
   });
 }
 
+function checklistSuggestedNextActions(input: InformationSuggestionInput) {
+  return (input.incompleteItems ?? []).map((item) => item.suggestedNextAction ?? "").filter(Boolean);
+}
+
 export async function POST(request: Request) {
   try {
     let body: unknown = {};
@@ -175,11 +179,12 @@ export async function POST(request: Request) {
 
       const ruleSuggestions = getSuggestedMissingDetails(input);
       const ruleQuestionsForCounsel = getQuestionsForCounsel(input);
-      const suggestions = dedupeStrings([...safeStringArray(parsed.suggestions), ...ruleSuggestions]);
+      const existingText = checklistSuggestedNextActions(input);
+      let suggestions = dedupeStrings([...safeStringArray(parsed.suggestions), ...ruleSuggestions], existingText);
       const questionsForCounsel = dedupeStrings([...safeStringArray(parsed.questionsForCounsel), ...ruleQuestionsForCounsel]);
 
       if (suggestions.length === 0) {
-        return rulesResponse(input);
+        suggestions = dedupeStrings(ruleSuggestions);
       }
 
       return NextResponse.json({
