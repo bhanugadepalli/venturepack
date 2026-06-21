@@ -41,7 +41,7 @@ export function MarketingFooter() {
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.2fr_2fr]">
         <div>
           <Link href="/" className="inline-flex rounded-xl p-1 hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[rgba(0,158,167,0.28)]">
-            <VenturePackLogo width={170} height={57} className="h-9 w-auto" />
+            <VenturePackLogo width={170} height={46} className="h-9 w-auto" />
           </Link>
           <p className="mt-4 text-sm font-semibold text-[#00173C]">VenturePack</p>
           <p className="mt-3 max-w-sm text-sm leading-6 text-[#64748B]">

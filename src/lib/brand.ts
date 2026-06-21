@@ -1,7 +1,7 @@
 export const BRAND = {
   name: "VenturePack",
   tagline: "Prepare your startup before the first legal conversation.",
-  logo: "/brand/venturepack-logo.png",
+  logo: "/brand/venturepack-logo-transparent.png",
   disclaimer: "VenturePack is not a law firm and does not provide legal advice.",
 } as const;
 

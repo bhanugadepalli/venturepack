@@ -15,10 +15,10 @@ export function MarketingHeader() {
     <header className="border-b border-[#DCE7F3] bg-white/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-5 sm:px-8 md:py-6 lg:px-10">
         <div className="flex flex-wrap items-center justify-between gap-5">
-          <Link href="/" className="flex shrink-0 rounded-xl p-1 hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[rgba(0,158,167,0.28)]">
+          <Link href="/" className="flex shrink-0 rounded-2xl border border-[#DCE7F3] bg-white/95 px-3 py-2 shadow-sm hover:bg-white focus:outline-none focus:ring-2 focus:ring-[rgba(0,158,167,0.28)]">
             <VenturePackLogo
               width={520}
-              height={180}
+              height={139}
               priority
               className="h-20 w-auto max-w-[72vw] sm:h-24 md:h-32 lg:h-36"
             />

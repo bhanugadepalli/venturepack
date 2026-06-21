@@ -11,8 +11,8 @@ type VenturePackLogoProps = {
 export function VenturePackLogo({
   className = "h-12 w-auto md:h-14",
   priority = false,
-  width = 250,
-  height = 84,
+  width = 280,
+  height = 75,
 }: VenturePackLogoProps) {
   return (
     <Image

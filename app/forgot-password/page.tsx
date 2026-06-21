@@ -58,7 +58,7 @@ export default function ForgotPasswordPage() {
       <div className="mx-auto max-w-md">
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex justify-center rounded-xl p-1 hover:bg-white focus:outline-none focus:ring-2 focus:ring-[rgba(0,158,167,0.28)]">
-            <VenturePackLogo width={220} height={74} priority className="h-12 w-auto" />
+            <VenturePackLogo width={220} height={59} priority className="h-12 w-auto" />
           </Link>
           <p className="mt-2 text-sm text-[#64748B]">
             Reset your password securely.

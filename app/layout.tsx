@@ -5,8 +5,8 @@ export const metadata: Metadata = {
   title: "VenturePack",
   description: "Prepare your startup before the first legal conversation.",
   icons: {
-    icon: "/icon.png",
-    apple: "/apple-icon.png",
+    icon: "/brand/venturepack-icon-transparent.png",
+    apple: "/brand/venturepack-icon-transparent.png",
   },
   openGraph: {
     title: "VenturePack",

@@ -49,7 +49,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center justify-between px-5 py-4 lg:block lg:px-6 lg:py-6">
             <div>
               <Link href="/" className="inline-flex rounded-xl p-1 hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[rgba(0,158,167,0.28)]">
-                <VenturePackLogo width={150} height={51} className="h-8 w-auto max-w-[150px]" />
+                <VenturePackLogo width={150} height={40} className="h-8 w-auto max-w-[150px]" />
               </Link>
               <p className="mt-2 hidden text-xs font-medium text-[#64748B] lg:block">Prepare before the first legal conversation.</p>
             </div>

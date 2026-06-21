@@ -49,7 +49,7 @@ export default function LoginPage() {
     <main className="min-h-screen bg-[#F8FAFC] px-6 py-8 text-[#00173C] sm:px-8 lg:px-10">
       <div className="mx-auto max-w-6xl">
         <Link href="/" className="mx-auto flex w-fit rounded-xl p-1 hover:bg-white focus:outline-none focus:ring-2 focus:ring-[rgba(0,158,167,0.28)]">
-          <VenturePackLogo width={220} height={74} priority className="h-12 w-auto" />
+          <VenturePackLogo width={220} height={59} priority className="h-12 w-auto" />
         </Link>
       </div>
       <div className="mx-auto grid min-h-[calc(100vh-8rem)] max-w-6xl items-center gap-10 py-8 lg:grid-cols-[0.95fr_1.05fr]">
