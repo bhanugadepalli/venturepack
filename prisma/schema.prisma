@@ -32,6 +32,9 @@ model User {
   companies           Company[]
   passwordResetTokens PasswordResetToken[]
   auditEvents         AuditEvent[]         @relation("AuditActor")
+  checklistSessions   ChecklistSession[]
+  checklistAnswers    ChecklistAnswer[]
+  generatedBriefs     GeneratedBrief[]
 }
 
 model Account {
@@ -153,6 +156,8 @@ model Company {
   attorneyMatchRequests AttorneyMatchRequest[]
   aiInteractions        AIInteraction[]
   auditEvents           AuditEvent[]
+  checklistSessions     ChecklistSession[]
+  generatedBriefs       GeneratedBrief[]
 }
 
 model Person {
@@ -205,6 +210,66 @@ model PreparationTask {
   company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 }
 
+model ChecklistSession {
+  id              String  @id @default(cuid())
+  companyId       String
+  userId          String
+  businessType    String
+  ventureStage    String
+  immediateGoal   String
+  teamStatus      String?
+  timeline        String?
+  status          String  @default("active")
+  aiPromptVersion String?
+  aiModelName     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company         Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questions       ChecklistQuestion[]
+  answers         ChecklistAnswer[]
+  generatedBriefs GeneratedBrief[]
+}
+
+model ChecklistQuestion {
+  id           String  @id @default(cuid())
+  sessionId    String
+  categoryKey  String
+  categoryName String
+  questionKey  String
+  questionText String
+  answerType   String
+  required     Boolean @default(false)
+  whyItMatters String?
+  outputUse    String?
+  sortOrder    Int     @default(0)
+  createdBy    String  @default("ai_validated")
+
+  createdAt DateTime @default(now())
+
+  session ChecklistSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  answers ChecklistAnswer[]
+}
+
+model ChecklistAnswer {
+  id               String  @id @default(cuid())
+  sessionId        String
+  questionId       String
+  userId           String
+  value            Json
+  evidenceText     String?
+  founderConfirmed Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  session  ChecklistSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  question ChecklistQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  user     User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
 model Matter {
   id        String @id @default(cuid())
   companyId String
@@ -250,6 +315,23 @@ model CounselPacket {
 
   company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
   matter  Matter? @relation(fields: [matterId], references: [id], onDelete: SetNull)
+}
+
+model GeneratedBrief {
+  id                    String    @id @default(cuid())
+  companyId             String
+  userId                String
+  checklistSessionId    String?
+  briefType             String
+  title                 String
+  generatedContent      Json
+  founderApprovalStatus String    @default("draft")
+  generatedAt           DateTime  @default(now())
+  downloadedAt          DateTime?
+
+  company          Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  checklistSession ChecklistSession? @relation(fields: [checklistSessionId], references: [id], onDelete: SetNull)
 }
 
 model AttorneyMatchRequest {

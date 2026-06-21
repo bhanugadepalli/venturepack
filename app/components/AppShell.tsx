@@ -10,6 +10,7 @@ import { VenturePackLogo } from "@/components/VenturePackLogo";
 const navItems = [
   { href: "/app", label: "Dashboard", group: "Workspace" },
   { href: "/app/onboarding", label: "Onboarding", group: "Workspace" },
+  { href: "/app/checklist", label: "Adaptive Checklist", group: "Workspace" },
   { href: "/app/company", label: "Company", group: "Workspace" },
   { href: "/app/matters", label: "Matters", group: "Preparation" },
   { href: "/app/counsel-packet", label: "Counsel packet", group: "Preparation" },
