@@ -9,10 +9,10 @@ type VenturePackLogoProps = {
 };
 
 export function VenturePackLogo({
-  className = "h-10 w-auto",
+  className = "h-12 w-auto md:h-14",
   priority = false,
-  width = 190,
-  height = 64,
+  width = 250,
+  height = 84,
 }: VenturePackLogoProps) {
   return (
     <Image
