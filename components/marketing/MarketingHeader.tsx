@@ -13,10 +13,15 @@ const productLinks = [
 export function MarketingHeader() {
   return (
     <header className="border-b border-[#DCE7F3] bg-white/95 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-4 sm:px-8 md:py-5 lg:px-10">
-        <div className="flex items-center justify-between gap-5">
+      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-5 sm:px-8 md:py-6 lg:px-10">
+        <div className="flex flex-wrap items-center justify-between gap-5">
           <Link href="/" className="flex shrink-0 rounded-xl p-1 hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[rgba(0,158,167,0.28)]">
-            <VenturePackLogo width={250} height={84} priority className="h-10 w-auto max-w-[190px] md:h-14 md:max-w-[260px]" />
+            <VenturePackLogo
+              width={520}
+              height={180}
+              priority
+              className="h-20 w-auto max-w-[72vw] sm:h-24 md:h-32 lg:h-36"
+            />
           </Link>
           <div className="flex shrink-0 items-center gap-2">
             <Link href="/login" className="rounded-xl px-3 py-2 text-sm font-semibold text-[#00173C] hover:bg-[#F8FAFC]">
