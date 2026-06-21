@@ -13,7 +13,34 @@ import { EmptyState } from "./EmptyState";
 import { ProgressCard } from "./ProgressCard";
 import { Badge, Button, Card, ProgressBar } from "./ui";
 
-export function DashboardClient() {
+type ChecklistSession = {
+  id: string;
+  businessType: string;
+  ventureStage: string;
+  immediateGoal: string;
+  teamStatus: string | null;
+  timeline: string | null;
+};
+
+export type AdaptiveChecklistDashboardViewData = {
+  hasSession: boolean;
+  session: ChecklistSession | null;
+  ventureProgress: number;
+  topMissingFacts: string[];
+};
+
+const emptyChecklistDashboardData: AdaptiveChecklistDashboardViewData = {
+  hasSession: false,
+  session: null,
+  ventureProgress: 0,
+  topMissingFacts: [],
+};
+
+export function DashboardClient({
+  initialChecklistData = emptyChecklistDashboardData,
+}: {
+  initialChecklistData?: AdaptiveChecklistDashboardViewData;
+}) {
   const [data, setData] = useState<CompanyProfile | null>(null);
   const [matters, setMatters] = useState<Matter[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -34,6 +61,9 @@ export function DashboardClient() {
   const checklistItems = useMemo(() => getPreparationChecklist({ profile: data, matters }), [data, matters]);
   const checklistCompletion = useMemo(() => calculatePreparationCompletion(checklistItems), [checklistItems]);
   const incompleteChecklistItems = useMemo(() => getIncompletePreparationItems(checklistItems), [checklistItems]);
+  const checklistSession = initialChecklistData.session;
+  const topChecklistMissingFacts = useMemo(() => initialChecklistData.topMissingFacts.slice(0, 3), [initialChecklistData.topMissingFacts]);
+  const ventureProgress = initialChecklistData.ventureProgress;
 
   if (!loaded) {
     return <div className="h-48 rounded-lg border border-[#DCE7F3] bg-white" />;
@@ -71,6 +101,91 @@ export function DashboardClient() {
           </div>
         </div>
       </section>
+
+      <Card className="mb-6 border-[#009EA7]/30 shadow-lg shadow-[#00173C]/[0.06]">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-3xl">
+            <Badge tone="blue">Adaptive Venture Checklist</Badge>
+            {checklistSession ? (
+              <>
+                <h2 className="mt-3 text-2xl font-bold tracking-tight text-[#00173C]">Adaptive Venture Checklist</h2>
+                <div className="mt-5 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
+                  {[
+                    ["Business type", checklistSession.businessType],
+                    ["Venture stage", checklistSession.ventureStage],
+                    ["Immediate goal", checklistSession.immediateGoal],
+                    checklistSession.teamStatus ? ["Team status", checklistSession.teamStatus] : null,
+                    checklistSession.timeline ? ["Timeline", checklistSession.timeline] : null,
+                  ]
+                    .filter(Boolean)
+                    .map((item) => {
+                      const [label, value] = item as string[];
+
+                      return (
+                        <div key={label} className="rounded-xl border border-[#DCE7F3] bg-[#F8FAFC] p-3">
+                          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#64748B]">{label}</p>
+                          <p className="mt-1 font-bold text-[#00173C]">{value}</p>
+                        </div>
+                      );
+                    })}
+                </div>
+                <div className="mt-5 rounded-2xl border border-[#DCE7F3] bg-white p-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <p className="text-sm font-bold text-[#00173C]">Venture Progress</p>
+                    <p className="text-2xl font-bold text-[#0B3E9F]">{ventureProgress}%</p>
+                  </div>
+                  <div className="mt-3">
+                    <ProgressBar value={ventureProgress} />
+                  </div>
+                </div>
+                <div className="mt-5">
+                  <p className="text-sm font-bold text-[#00173C]">Top missing facts</p>
+                  {topChecklistMissingFacts.length > 0 ? (
+                    <ul className="mt-2 space-y-1 text-sm leading-6 text-[#64748B]">
+                      {topChecklistMissingFacts.map((fact) => (
+                        <li key={fact}>{fact}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="mt-2 text-sm leading-6 text-[#64748B]">No top missing facts are available yet.</p>
+                  )}
+                </div>
+                {ventureProgress < 50 ? (
+                  <p className="mt-5 rounded-xl border border-[#DCE7F3] bg-[#F8FAFC] p-3 text-sm leading-6 text-[#64748B]">
+                    You can generate a brief with missing information, but you should review incomplete sections before sharing.
+                  </p>
+                ) : null}
+              </>
+            ) : (
+              <>
+                <h2 className="mt-3 text-2xl font-bold tracking-tight text-[#00173C]">Build your personalized startup checklist</h2>
+                <p className="mt-3 text-sm leading-6 text-[#64748B]">
+                  Answer a few questions about what you are building, where you are, and what you are preparing for.
+                </p>
+              </>
+            )}
+            <p className="mt-5 text-xs leading-5 text-[#64748B]">
+              Venture Progress reflects completion of requested preparation information. It is not a legal opinion, compliance rating,
+              investment judgment, or guarantee.
+            </p>
+          </div>
+          <div className="flex w-full flex-col gap-3 lg:w-64">
+            {checklistSession ? (
+              <>
+                <Button href="/app/checklist">Continue Checklist</Button>
+                <Button href="/app/checklist?brief=COUNSEL_BRIEF" variant="secondary">
+                  Generate Counsel Brief
+                </Button>
+                <Button href="/app/checklist?brief=PITCH_BRIEF" variant="secondary">
+                  Generate Pitch Brief
+                </Button>
+              </>
+            ) : (
+              <Button href="/app/checklist">Build My Checklist</Button>
+            )}
+          </div>
+        </div>
+      </Card>
 
       <section className="mb-6 grid gap-4 lg:grid-cols-[1fr_360px]">
         <Card className="shadow-md shadow-[#00173C]/[0.04]">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   businessTypes,
   immediateGoals,
@@ -98,6 +98,8 @@ type BriefPreview = {
   };
 };
 
+type ChecklistBriefType = "COUNSEL_BRIEF" | "PITCH_BRIEF";
+
 type BriefResponse = {
   ok: boolean;
   brief?: BriefPreview;
@@ -132,6 +134,10 @@ const initialFormState: FormState = {
 const progressNote =
   "This percentage reflects completion of requested preparation information. It is not a legal opinion, compliance rating, investment judgment, or guarantee.";
 const fieldStyles = "vp-input mt-2 w-full rounded-lg px-3 py-2 text-sm outline-none";
+const briefHelperMessages: Record<ChecklistBriefType, string> = {
+  COUNSEL_BRIEF: "Generate a Counsel Brief from your saved checklist answers.",
+  PITCH_BRIEF: "Generate a Pitch Brief from your saved checklist answers.",
+};
 
 function outputUseLabel(outputUse: string | null) {
   switch (outputUse) {
@@ -176,7 +182,8 @@ function SelectField({
   );
 }
 
-export function AdaptiveChecklistClient() {
+export function AdaptiveChecklistClient({ requestedBriefType }: { requestedBriefType?: ChecklistBriefType }) {
+  const briefSectionRef = useRef<HTMLElement | null>(null);
   const [formData, setFormData] = useState<FormState>(initialFormState);
   const [session, setSession] = useState<ChecklistSession | null>(null);
   const [questions, setQuestions] = useState<ChecklistQuestion[]>([]);
@@ -186,6 +193,7 @@ export function AdaptiveChecklistClient() {
   const [savedQuestionId, setSavedQuestionId] = useState("");
   const [briefPreview, setBriefPreview] = useState<BriefPreview | null>(null);
   const [briefReviewed, setBriefReviewed] = useState(false);
+  const [selectedBriefType, setSelectedBriefType] = useState<ChecklistBriefType | undefined>(requestedBriefType);
   const [isLoadingSession, setIsLoadingSession] = useState(true);
   const [isLoadingProgress, setIsLoadingProgress] = useState(false);
   const [isSavingSession, setIsSavingSession] = useState(false);
@@ -247,6 +255,15 @@ export function AdaptiveChecklistClient() {
       isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!requestedBriefType || isLoadingSession) {
+      return;
+    }
+
+    setSelectedBriefType(requestedBriefType);
+    briefSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [isLoadingSession, requestedBriefType]);
 
   const groupedQuestions = useMemo(() => {
     const groups: Array<{ categoryKey: string; categoryName: string; questions: ChecklistQuestion[] }> = [];
@@ -354,8 +371,9 @@ export function AdaptiveChecklistClient() {
     }
   }
 
-  async function generateBrief(briefType: "COUNSEL_BRIEF" | "PITCH_BRIEF") {
+  async function generateBrief(briefType: ChecklistBriefType) {
     setError("");
+    setSelectedBriefType(briefType);
     setIsGeneratingBrief(true);
     setBriefReviewed(false);
 
@@ -585,21 +603,33 @@ export function AdaptiveChecklistClient() {
         </div>
       </section>
 
-      <section className="xl:col-span-2 rounded-3xl border border-[#DCE7F3] bg-white p-5 shadow-md shadow-[#00173C]/[0.04] sm:p-6">
+      <section
+        ref={briefSectionRef}
+        className="scroll-mt-6 xl:col-span-2 rounded-3xl border border-[#DCE7F3] bg-white p-5 shadow-md shadow-[#00173C]/[0.04] sm:p-6"
+      >
         <div className="flex flex-col gap-4 border-b border-[#DCE7F3] pb-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#008787]">Brief preview</p>
             <h2 className="mt-2 text-2xl font-bold tracking-tight text-[#00173C]">Generate a Preparation Brief</h2>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-[#64748B]">
-              Create an on-screen preview from saved checklist answers and company facts.
+              {selectedBriefType ? briefHelperMessages[selectedBriefType] : "Create an on-screen preview from saved checklist answers and company facts."}
             </p>
+            {!session && selectedBriefType ? (
+              <p className="mt-3 rounded-xl border border-[#DCE7F3] bg-[#F8FAFC] p-3 text-sm font-semibold text-[#00173C]">
+                Build your checklist first, then generate a brief.
+              </p>
+            ) : null}
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
             <button
               type="button"
               onClick={() => generateBrief("COUNSEL_BRIEF")}
               disabled={isGeneratingBrief || !session}
-              className="rounded-xl bg-[#0B3E9F] px-5 py-3 text-sm font-semibold text-white hover:bg-[#00173C] focus:outline-none focus:ring-4 focus:ring-[rgba(0,158,167,0.24)] disabled:cursor-not-allowed disabled:bg-slate-400"
+              className={`rounded-xl px-5 py-3 text-sm font-semibold focus:outline-none focus:ring-4 focus:ring-[rgba(0,158,167,0.24)] disabled:cursor-not-allowed disabled:bg-slate-400 ${
+                selectedBriefType === "COUNSEL_BRIEF"
+                  ? "bg-[#0B3E9F] text-white shadow-md shadow-[#0B3E9F]/20 hover:bg-[#00173C]"
+                  : "border border-[#DCE7F3] bg-white text-[#0B3E9F] hover:bg-[#F8FAFC] disabled:text-white"
+              }`}
             >
               Generate Counsel Brief
             </button>
@@ -607,7 +637,11 @@ export function AdaptiveChecklistClient() {
               type="button"
               onClick={() => generateBrief("PITCH_BRIEF")}
               disabled={isGeneratingBrief || !session}
-              className="rounded-xl border border-[#DCE7F3] bg-white px-5 py-3 text-sm font-semibold text-[#0B3E9F] hover:bg-[#F8FAFC] focus:outline-none focus:ring-4 focus:ring-[rgba(0,158,167,0.24)] disabled:cursor-not-allowed disabled:text-[#94A3B8]"
+              className={`rounded-xl px-5 py-3 text-sm font-semibold focus:outline-none focus:ring-4 focus:ring-[rgba(0,158,167,0.24)] disabled:cursor-not-allowed disabled:bg-slate-400 ${
+                selectedBriefType === "PITCH_BRIEF"
+                  ? "bg-[#0B3E9F] text-white shadow-md shadow-[#0B3E9F]/20 hover:bg-[#00173C]"
+                  : "border border-[#DCE7F3] bg-white text-[#0B3E9F] hover:bg-[#F8FAFC] disabled:text-white"
+              }`}
             >
               Generate Pitch Brief
             </button>
