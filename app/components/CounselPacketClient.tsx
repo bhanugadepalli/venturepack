@@ -274,7 +274,7 @@ export function CounselPacketClient() {
         </div>
       </div>
       <aside className="space-y-5 print:hidden">
-        <PreparationChecklist items={checklistItems} compact />
+        <PreparationChecklist items={checklistItems} completionPercentage={checklistCompletion} compact />
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-950 shadow-sm">
           This packet was prepared by the founder using VenturePack. It is not a legal opinion and does not provide legal
           advice. It should be reviewed by qualified counsel.
