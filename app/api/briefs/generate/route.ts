@@ -13,6 +13,7 @@ import {
   generateCounselBriefContent,
   generatePitchBriefContent,
 } from "@/src/lib/generatedBriefs";
+import { generateBriefDraftWithGemini } from "@/src/lib/geminiBriefDrafting";
 
 type BriefType = "COUNSEL_BRIEF" | "PITCH_BRIEF";
 
@@ -141,10 +142,21 @@ export async function POST(request: Request) {
       answers,
       progress,
     };
-    const content =
+    const rulesBasedContent =
       briefType === "COUNSEL_BRIEF"
         ? generateCounselBriefContent(contentInput)
         : generatePitchBriefContent(contentInput);
+    const geminiDraft = await generateBriefDraftWithGemini({
+      briefType,
+      company,
+      session,
+      questions,
+      answers,
+      progress,
+      rulesBasedContent,
+    });
+    const provider = geminiDraft.ok ? "gemini" : "rules";
+    const content = geminiDraft.ok ? geminiDraft.content : rulesBasedContent;
     const generatedAt = new Date();
     const title = briefType === "COUNSEL_BRIEF" ? "Counsel Brief Preview" : "Pitch Brief Preview";
     const savedBrief = await prisma.generatedBrief.create({
@@ -162,13 +174,14 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       ok: true,
+      provider,
       brief: {
         id: savedBrief.id,
         briefType,
         title,
+        generatedContent: content,
         generatedAt: generatedAt.toISOString(),
         founderApprovalStatus: savedBrief.founderApprovalStatus,
-        content,
       },
     });
   } catch {
