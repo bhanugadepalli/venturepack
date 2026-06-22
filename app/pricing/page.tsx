@@ -6,48 +6,48 @@ const plans = [
   {
     name: "Free",
     price: "$0",
-    subtitle: "Best for exploring VenturePack.",
-    cta: "Start Free",
+    subtitle: "Start organizing your venture.",
+    cta: "Build My Checklist",
     href: "/signup",
     features: [
-      "Founder account",
       "Company workspace",
-      "Guided onboarding",
-      "Preparation dashboard",
-      "Basic matter setup",
-      "Counsel packet preview",
+      "Adaptive Venture Checklist",
+      "Venture Progress preview",
+      "Basic missing facts view",
+      "Counsel Brief preview",
+      "Pitch Brief preview",
     ],
   },
   {
     name: "Founder",
     price: "$19/month",
     badge: "Coming soon",
-    subtitle: "Best for founders preparing for their first attorney conversation.",
+    subtitle: "For founders preparing to pitch, launch, or meet counsel.",
     cta: "Join Waitlist",
     href: "/signup",
     highlighted: true,
     features: [
-      "Full company workspace",
-      "Guided founder intake",
-      "Preparation completion tracking",
-      "Matter preparation templates",
-      "Counsel packet generation",
-      "Counsel packet PDF download",
+      "Full Adaptive Venture Checklist",
+      "Saved checklist answers",
+      "Counsel Brief generation",
+      "Pitch Brief generation",
+      "PDF exports",
+      "Advanced preparation history",
       "Attorney matching request",
     ],
   },
   {
     name: "Cohort",
     price: "Custom",
-    subtitle: "For accelerators, startup programs, student founder groups, and startup clinics.",
+    subtitle: "For startup programs, student founder groups, accelerators, and clinics.",
     cta: "Contact Us",
     href: "/contact",
     features: [
       "Multiple founder workspaces",
-      "Cohort onboarding",
-      "Program preparation tracking",
+      "Cohort preparation tracking",
       "Founder progress visibility",
-      "Custom rollout support",
+      "Custom onboarding",
+      "Program support",
     ],
   },
 ];
@@ -56,21 +56,22 @@ const faqs = [
   {
     question: "Does VenturePack provide legal advice?",
     answer:
-      "No. VenturePack helps founders organize information, understand general preparation concepts, and prepare better questions for counsel.",
+      "No. VenturePack organizes preparation information. It is not a law firm and does not provide legal advice.",
   },
   {
-    question: "What is a counsel packet?",
+    question: "What is Venture Progress?",
     answer:
-      "A structured summary of founder-supplied company information, open questions, missing information, and matter context that can help make a first attorney conversation more productive.",
+      "Venture Progress reflects completion of requested preparation information. It is not a legal opinion, compliance rating, investment judgment, or guarantee.",
   },
   {
-    question: "Can I use VenturePack before I have a lawyer?",
-    answer: "Yes. VenturePack is designed to help founders prepare before speaking with counsel.",
-  },
-  {
-    question: "Is the Founder plan available now?",
+    question: "What is the Adaptive Venture Checklist?",
     answer:
-      "The Founder plan is planned. For now, users can start with the free workspace while paid access is being prepared.",
+      "It is a personalized checklist based on your business type, stage, goal, team status, and timeline.",
+  },
+  {
+    question: "What are Counsel Briefs and Pitch Briefs?",
+    answer:
+      "They are preparation outputs generated from founder-supplied information and saved checklist answers.",
   },
 ];
 
@@ -84,9 +85,9 @@ export default function PricingPage() {
             <span className="inline-flex rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-white">
               Pricing
             </span>
-            <h1 className="mt-5 text-4xl font-bold tracking-tight sm:text-6xl">Simple pricing for every stage.</h1>
+            <h1 className="mt-5 text-4xl font-bold tracking-tight sm:text-6xl">Simple pricing for organized founders.</h1>
             <p className="mt-6 text-lg leading-8 text-[#DCE7F3]">
-              Start with a practical preparation workspace, then choose the path that fits your founder journey or program.
+              VenturePack helps founders organize startup preparation, build adaptive checklists, track Venture Progress, and generate preparation briefs.
             </p>
           </div>
         </div>
@@ -131,7 +132,7 @@ export default function PricingPage() {
         <div className="mx-auto max-w-7xl rounded-3xl border border-[#DCE7F3] bg-[#F8FAFC] p-6 sm:p-8">
           <Badge>Pricing note</Badge>
           <p className="mt-4 text-sm leading-6 text-[#64748B]">
-            VenturePack is not a law firm and does not provide legal advice. Preparation completion is not legal compliance.
+            VenturePack organizes preparation information. It is not a law firm and does not provide legal advice.
           </p>
           <p className="mt-2 text-sm leading-6 text-[#64748B]">Stripe payments are not connected yet.</p>
         </div>
@@ -156,7 +157,7 @@ export default function PricingPage() {
         </div>
       </section>
 
-      <CTASection title="Start preparing with VenturePack." buttonLabel="Start Free" buttonHref="/signup" />
+      <CTASection title="Build your checklist with VenturePack." buttonLabel="Build My Checklist" buttonHref="/signup" />
     </MarketingShell>
   );
 }

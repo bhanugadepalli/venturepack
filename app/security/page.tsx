@@ -5,11 +5,11 @@ import { Badge, Card } from "../components/ui";
 const sections = [
   {
     title: "Founder-controlled workspaces",
-    body: "Founders create and manage their own preparation workspace, including company profile information, matters, and packet review steps.",
+    body: "Founders create and manage their own preparation workspace, including company profile information, checklist answers, and brief review steps.",
   },
   {
-    title: "Structured company records",
-    body: "VenturePack keeps startup preparation information organized by company, category, matter, and counsel packet preview.",
+    title: "Structured venture records",
+    body: "VenturePack keeps startup preparation information organized by company, checklist category, saved answer, and preparation brief.",
   },
   {
     title: "Protected account access",
@@ -21,7 +21,7 @@ const sections = [
   },
   {
     title: "Preparation history",
-    body: "The product is designed around preparation artifacts such as matters, packets, source records, and administrative audit events.",
+    body: "The product is designed around preparation artifacts such as checklist sessions, saved answers, generated briefs, and administrative audit events.",
   },
   {
     title: "Clear product boundaries",
@@ -37,15 +37,15 @@ export default function SecurityPage() {
           <div>
             <Badge>Security</Badge>
             <h1 className="mt-5 text-4xl font-bold tracking-tight text-[#00173C] sm:text-6xl">
-              Founder-controlled preparation, with clear product boundaries.
+              Founder-controlled venture records, with clear product boundaries.
             </h1>
             <p className="mt-6 text-lg leading-8 text-[#64748B]">
-              VenturePack keeps its security language practical and precise. The product is built to organize founder preparation information, protect private app access, and avoid unsupported claims.
+              VenturePack keeps its security language practical and precise. The product is built to organize founder-supplied information, protect private app access, and avoid unsupported claims.
             </p>
           </div>
           <Card className="bg-gradient-to-br from-[#00173C] via-[#0B3E9F] to-[#009EA7] text-white shadow-xl shadow-[#00173C]/10">
             <Badge tone="slate">Boundary note</Badge>
-            <h2 className="mt-5 text-2xl font-bold text-white">Preparation, not legal advice.</h2>
+            <h2 className="mt-5 text-2xl font-bold text-white">Preparation, with boundaries.</h2>
             <p className="mt-3 text-sm leading-6 text-[#DCE7F3]">
               VenturePack does not claim attorney-client privilege, legal representation, regulated-industry certification, or third-party security attestations.
             </p>

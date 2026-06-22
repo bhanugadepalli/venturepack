@@ -45,7 +45,7 @@ export function MarketingFooter() {
           </Link>
           <p className="mt-4 text-sm font-semibold text-[#00173C]">VenturePack</p>
           <p className="mt-3 max-w-sm text-sm leading-6 text-[#64748B]">
-            VenturePack is not a law firm and does not provide legal advice.
+            The startup launchpad for organized founders.
           </p>
         </div>
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">

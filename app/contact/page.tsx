@@ -6,19 +6,19 @@ import { ContactForm } from "./ContactForm";
 const inquiryTypes = [
   {
     title: "Founder inquiries",
-    body: "Questions about preparing company information, matters, and counsel packets before a first attorney conversation.",
+    body: "Questions about building an Adaptive Venture Checklist, tracking Venture Progress, and generating preparation briefs.",
   },
   {
     title: "Accelerator/cohort inquiries",
-    body: "Explore how VenturePack could help teams gather consistent preparation information before office hours or referrals.",
+    body: "Explore how VenturePack could help teams gather consistent preparation information before office hours, presentations, or referrals.",
   },
   {
     title: "Attorney partnership inquiries",
-    body: "Share feedback on counsel packet structure, founder preparation workflows, or future referral boundaries.",
+    body: "Share feedback on Counsel Brief structure, founder preparation workflows, or future referral boundaries.",
   },
   {
     title: "General questions",
-    body: "Ask about the product, public pages, account setup, or upcoming founder preparation features.",
+    body: "Ask about the product, public pages, account setup, or upcoming startup launchpad features.",
   },
 ];
 
@@ -33,7 +33,7 @@ export default function ContactPage() {
               Talk to VenturePack.
             </h1>
             <p className="mt-6 text-lg leading-8 text-[#64748B]">
-              Reach out about founder preparation, cohort workflows, attorney partnerships, or general product questions.
+              Reach out about founder preparation, cohort workflows, Counsel Brief structure, or general product questions.
             </p>
             <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
               {inquiryTypes.map((inquiry) => (

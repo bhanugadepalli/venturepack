@@ -28,7 +28,7 @@ export function MarketingHeader() {
               Sign In
             </Link>
             <Link href="/signup" className="rounded-xl bg-[#0B3E9F] px-4 py-2 text-sm font-semibold text-white hover:bg-[#00173C] focus:outline-none focus:ring-4 focus:ring-[rgba(0,158,167,0.24)]">
-              Start Preparing
+              Build My Checklist
             </Link>
           </div>
         </div>

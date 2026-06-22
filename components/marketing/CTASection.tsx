@@ -8,9 +8,9 @@ type CTASectionProps = {
 };
 
 export function CTASection({
-  title = "Walk in prepared. Build with confidence.",
-  description = "Create a founder preparation workspace, organize company facts, and prepare better questions before speaking with qualified counsel.",
-  buttonLabel = "Start Preparing Now",
+  title = "Build your checklist. Organize your venture.",
+  description = "Start with a few questions. Leave with structured progress, clearer next actions, and preparation briefs you can review before pitching, launching, or meeting counsel.",
+  buttonLabel = "Build My Checklist",
   buttonHref = "/signup",
 }: CTASectionProps) {
   return (

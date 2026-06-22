@@ -4,16 +4,16 @@ import { Badge, Button, Card } from "../components/ui";
 
 const principles = [
   {
-    title: "Start with the company",
-    body: "The workspace begins with founder facts, company context, operations, records, and preparation questions.",
+    title: "Start with the venture",
+    body: "The workspace begins with founder-supplied information, startup context, goals, timeline, and preparation questions.",
   },
   {
     title: "Respect the boundary",
     body: "VenturePack helps founders organize information. It is not a law firm and does not provide legal advice.",
   },
   {
-    title: "Make counsel conversations better",
-    body: "The goal is a clearer first conversation with qualified counsel, not a replacement for that conversation.",
+    title: "Make preparation clearer",
+    body: "The goal is a structured venture record founders can review before pitching, launching, or meeting counsel.",
   },
 ];
 
@@ -25,13 +25,13 @@ export default function AboutPage() {
           <div>
             <Badge>About</Badge>
             <h1 className="mt-5 text-4xl font-bold tracking-tight text-[#00173C] sm:text-6xl">
-              Built by a future startup lawyer.
+              Built for young entrepreneurs who need structure.
             </h1>
             <p className="mt-6 text-lg leading-8 text-[#64748B]">
-              VenturePack was created by Akhil, an economics student preparing for a career in startup law. He saw that early founders often arrive at their first legal meeting unprepared, not because they lack ambition, but because no one gave them a structure.
+              VenturePack was created by Akhil, an economics student preparing for a career in startup law. He saw that early founders often have the facts somewhere, but not in a structure they can use for pitching, launching, or meeting counsel.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button href="/signup">Start preparing</Button>
+              <Button href="/signup">Build My Checklist</Button>
               <Button href="/contact" variant="secondary">Contact VenturePack</Button>
             </div>
           </div>
@@ -41,7 +41,7 @@ export default function AboutPage() {
               Early founders should not need to know every legal term before they can organize the facts counsel will ask for.
             </blockquote>
             <p className="mt-5 text-sm leading-6 text-[#64748B]">
-              VenturePack is intentionally early-stage and practical: gather facts, surface preparation gaps, prepare matters, and create a better first packet for counsel review.
+              VenturePack is intentionally practical: build an Adaptive Venture Checklist, track Venture Progress, save missing facts, and generate preparation briefs from founder-supplied information.
             </p>
           </Card>
         </div>
