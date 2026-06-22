@@ -32,7 +32,8 @@ type AnswerRecord = AdaptiveChecklistAnswer & {
 function unauthorizedResponse() {
   return NextResponse.json(
     {
-      error: "Authentication required.",
+      ok: false,
+      error: "UNAUTHORIZED",
     },
     { status: 401 },
   );
@@ -146,7 +147,12 @@ export async function GET() {
       topMissingFacts,
       note: progressNote,
     });
-  } catch {
+  } catch (error) {
+    console.error("CHECKLIST_PROGRESS_ERROR", {
+      name: error instanceof Error ? error.name : undefined,
+      message: error instanceof Error ? error.message : undefined,
+    });
+
     return emptyProgressResponse();
   }
 }

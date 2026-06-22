@@ -3,6 +3,7 @@ import {
   validateAdaptiveChecklistAiOutput,
   type ValidatedAdaptiveChecklistAiOutput,
 } from "@/src/lib/adaptiveChecklistAiSchema";
+import { safeParseJson } from "@/src/lib/safeJson";
 
 type GeminiAdaptiveChecklistInput = {
   company?: any;
@@ -136,23 +137,6 @@ function errorDetails(error: unknown) {
   };
 }
 
-function stripMarkdownFences(value: string) {
-  const text = value.trim();
-  const fenced = text.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
-  return fenced ? fenced[1].trim() : text;
-}
-
-function parseGeminiJson(value: string) {
-  const stripped = stripMarkdownFences(value);
-
-  try {
-    return JSON.parse(stripped);
-  } catch {
-    const match = stripped.match(/\{[\s\S]*\}/);
-    return match ? JSON.parse(match[0]) : null;
-  }
-}
-
 export async function generateAdaptiveChecklistWithGemini(
   input: GeminiAdaptiveChecklistInput,
 ): Promise<GeminiAdaptiveChecklistResult> {
@@ -179,7 +163,7 @@ export async function generateAdaptiveChecklistWithGemini(
         responseMimeType: "application/json",
       },
     });
-    const parsed = parseGeminiJson(result.response.text());
+    const parsed = safeParseJson(result.response.text());
     const validated = validateAdaptiveChecklistAiOutput(parsed);
 
     if (!validated) {

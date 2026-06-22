@@ -16,9 +16,30 @@ type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string
 function unauthorizedResponse() {
   return NextResponse.json(
     {
-      error: "Authentication required.",
+      ok: false,
+      error: "UNAUTHORIZED",
     },
     { status: 401 },
+  );
+}
+
+function forbiddenResponse() {
+  return NextResponse.json(
+    {
+      ok: false,
+      error: "UNAUTHORIZED",
+    },
+    { status: 403 },
+  );
+}
+
+function notFoundResponse() {
+  return NextResponse.json(
+    {
+      ok: false,
+      error: "NOT_FOUND",
+    },
+    { status: 404 },
   );
 }
 
@@ -122,13 +143,22 @@ export async function POST(request: Request) {
     const session = await prisma.checklistSession.findFirst({
       where: {
         id: sessionId,
-        userId,
       },
-      select: { id: true },
+      select: {
+        id: true,
+        userId: true,
+        company: {
+          select: { ownerId: true },
+        },
+      },
     });
 
     if (!session) {
-      return failedResponse(403);
+      return notFoundResponse();
+    }
+
+    if (session.userId !== userId || session.company.ownerId !== userId) {
+      return forbiddenResponse();
     }
 
     const question = await prisma.checklistQuestion.findFirst({
@@ -140,7 +170,7 @@ export async function POST(request: Request) {
     });
 
     if (!question) {
-      return failedResponse(400);
+      return notFoundResponse();
     }
 
     const data = {
@@ -151,29 +181,42 @@ export async function POST(request: Request) {
       evidenceText: stringValue(body.evidenceText) || null,
       founderConfirmed: body.founderConfirmed === true,
     };
-    const existingAnswer = await prisma.checklistAnswer.findFirst({
-      where: {
-        sessionId: session.id,
-        questionId: question.id,
-        userId,
-      },
-      select: { id: true },
-    });
-    const answer = existingAnswer
-      ? await prisma.checklistAnswer.update({
-          where: { id: existingAnswer.id },
-          data,
-        })
-      : await prisma.checklistAnswer.create({
-          data,
+    const answer = await prisma.$transaction(async (tx) => {
+      const existingAnswers = await tx.checklistAnswer.findMany({
+        where: {
+          sessionId: session.id,
+          questionId: question.id,
+          userId,
+        },
+        orderBy: { updatedAt: "desc" },
+        select: { id: true },
+      });
+      const [existingAnswer, ...duplicateAnswers] = existingAnswers;
+
+      if (duplicateAnswers.length > 0) {
+        await tx.checklistAnswer.deleteMany({
+          where: {
+            id: { in: duplicateAnswers.map((answer) => answer.id) },
+          },
         });
+      }
+
+      return existingAnswer
+        ? tx.checklistAnswer.update({
+            where: { id: existingAnswer.id },
+            data,
+          })
+        : tx.checklistAnswer.create({
+            data,
+          });
+    });
 
     return NextResponse.json({
       ok: true,
       answer: answerResponse(answer),
     });
   } catch (error) {
-    console.error("CHECKLIST_ANSWER_SAVE_ERROR", {
+    console.error("CHECKLIST_ANSWER_ERROR", {
       name: error instanceof Error ? error.name : undefined,
       message: error instanceof Error ? error.message : undefined,
     });

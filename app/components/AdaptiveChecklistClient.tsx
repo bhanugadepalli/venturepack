@@ -313,6 +313,10 @@ export function AdaptiveChecklistClient({ requestedBriefType }: { requestedBrief
     return map;
   }, [progress]);
   const isBriefApproved = briefPreview?.founderApprovalStatus === "reviewed";
+  const ventureProgress = progress?.ventureProgress ?? 0;
+  const hasSavedAnswers = (progress?.categories ?? []).some(
+    (category) => category.answeredRequiredCount > 0 || category.preparationCompletion > 0,
+  );
 
   function updateField(name: keyof FormState, value: string) {
     setFormData((current) => ({ ...current, [name]: value }));
@@ -350,7 +354,7 @@ export function AdaptiveChecklistClient({ requestedBriefType }: { requestedBrief
   }
 
   async function saveAnswer(question: ChecklistQuestion) {
-    if (!session) {
+    if (!session || savingQuestionId) {
       return;
     }
 
@@ -389,6 +393,10 @@ export function AdaptiveChecklistClient({ requestedBriefType }: { requestedBrief
   }
 
   async function generateBrief(briefType: ChecklistBriefType) {
+    if (isGeneratingBrief) {
+      return;
+    }
+
     setError("");
     setSelectedBriefType(briefType);
     setIsGeneratingBrief(true);
@@ -503,6 +511,10 @@ export function AdaptiveChecklistClient({ requestedBriefType }: { requestedBrief
 
   async function createSession(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isSavingSession) {
+      return;
+    }
+
     setError("");
     setFieldErrors({});
     setIsSavingSession(true);
@@ -542,6 +554,10 @@ export function AdaptiveChecklistClient({ requestedBriefType }: { requestedBrief
   }
 
   async function generateQuestions() {
+    if (isGeneratingQuestions) {
+      return;
+    }
+
     setError("");
     setIsGeneratingQuestions(true);
 
@@ -623,10 +639,17 @@ export function AdaptiveChecklistClient({ requestedBriefType }: { requestedBrief
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#008787]">Venture Progress</p>
             <h2 className="mt-2 text-4xl font-bold tracking-tight text-[#00173C]">
-              {isLoadingProgress ? "..." : `${progress?.ventureProgress ?? 0}%`}
+              {isLoadingProgress ? "..." : `${ventureProgress}%`}
             </h2>
           </div>
-          <p className="max-w-3xl text-sm leading-6 text-[#64748B]">{progress?.note ?? progressNote}</p>
+          <div className="max-w-3xl text-sm leading-6 text-[#64748B]">
+            <p>{progress?.note ?? progressNote}</p>
+            {!isLoadingProgress && session && ventureProgress === 0 ? (
+              <p className="mt-2 font-semibold text-[#00173C]">
+                Your checklist is ready. Start answering questions to build Venture Progress.
+              </p>
+            ) : null}
+          </div>
         </div>
       </section>
 
@@ -810,6 +833,12 @@ export function AdaptiveChecklistClient({ requestedBriefType }: { requestedBrief
           </div>
         ) : (
           <form className="mt-6 grid gap-5" onSubmit={createSession}>
+            <div className="rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-4">
+              <h3 className="text-lg font-bold text-[#00173C]">Build your personalized startup checklist.</h3>
+              <p className="mt-2 text-sm leading-6 text-[#64748B]">
+                Answer a few questions about your venture so VenturePack can organize your preparation.
+              </p>
+            </div>
             <div className="grid gap-5 md:grid-cols-2">
               <SelectField label="Business type" name="businessType" options={businessTypes} value={formData.businessType} onChange={updateField} />
               <SelectField label="Venture stage" name="ventureStage" options={ventureStages} value={formData.ventureStage} onChange={updateField} />
@@ -875,7 +904,7 @@ export function AdaptiveChecklistClient({ requestedBriefType }: { requestedBrief
               ))}
             </ul>
           ) : (
-            <p className="mt-3 text-sm leading-6 text-[#64748B]">Missing facts will appear after questions are generated.</p>
+            <p className="mt-3 text-sm leading-6 text-[#64748B]">No major missing facts are showing right now.</p>
           )}
         </div>
       </aside>
@@ -888,13 +917,21 @@ export function AdaptiveChecklistClient({ requestedBriefType }: { requestedBrief
         ) : null}
 
         {!isGeneratingQuestions && groupedQuestions.length === 0 && session ? (
-          <div className="rounded-3xl border border-[#DCE7F3] bg-white p-5 text-sm leading-6 text-[#64748B] shadow-md shadow-[#00173C]/[0.04]">
-            Generate questions to preview the Adaptive Venture Checklist.
+          <div className="rounded-3xl border border-[#DCE7F3] bg-white p-5 shadow-md shadow-[#00173C]/[0.04]">
+            <h3 className="text-xl font-bold text-[#00173C]">Generate your checklist questions.</h3>
+            <p className="mt-2 text-sm leading-6 text-[#64748B]">
+              VenturePack will create preparation questions based on your business type, stage, and goal.
+            </p>
           </div>
         ) : null}
 
         {groupedQuestions.length > 0 ? (
           <div className="grid gap-5">
+            {!hasSavedAnswers ? (
+              <div className="rounded-3xl border border-[#DCE7F3] bg-white p-5 text-sm font-semibold leading-6 text-[#00173C] shadow-md shadow-[#00173C]/[0.04]">
+                Start by answering a few required questions. Your Venture Progress will update as you save answers.
+              </div>
+            ) : null}
             {groupedQuestions.map((group) => (
               <article key={group.categoryKey} className="rounded-3xl border border-[#DCE7F3] bg-white p-5 shadow-md shadow-[#00173C]/[0.04]">
                 <div className="flex flex-col gap-2 border-b border-[#DCE7F3] pb-4 sm:flex-row sm:items-center sm:justify-between">
@@ -961,7 +998,7 @@ export function AdaptiveChecklistClient({ requestedBriefType }: { requestedBrief
                             <button
                               type="button"
                               onClick={() => saveAnswer(question)}
-                              disabled={savingQuestionId === question.id}
+                              disabled={Boolean(savingQuestionId)}
                               className="rounded-xl bg-[#0B3E9F] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#00173C] focus:outline-none focus:ring-4 focus:ring-[rgba(0,158,167,0.24)] disabled:cursor-not-allowed disabled:bg-slate-400"
                             >
                               {savingQuestionId === question.id ? "Saving..." : "Save Answer"}

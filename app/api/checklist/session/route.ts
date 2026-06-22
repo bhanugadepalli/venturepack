@@ -19,7 +19,8 @@ type ChecklistSessionInput = {
 function unauthorizedResponse() {
   return NextResponse.json(
     {
-      error: "Authentication required.",
+      ok: false,
+      error: "UNAUTHORIZED",
     },
     { status: 401 },
   );
@@ -157,12 +158,17 @@ export async function GET() {
       ok: true,
       session: session ? sessionResponse(session) : null,
     });
-  } catch {
+  } catch (error) {
+    console.error("CHECKLIST_SESSION_ERROR", {
+      name: error instanceof Error ? error.name : undefined,
+      message: error instanceof Error ? error.message : undefined,
+    });
+
     return NextResponse.json(
       {
         ok: false,
         session: null,
-        error: "Unable to load checklist session.",
+        error: "CHECKLIST_SESSION_ERROR",
       },
       { status: 500 },
     );
@@ -204,28 +210,64 @@ export async function POST(request: Request) {
     }
 
     const company = await getOrCreateCompany(userId);
-    const session = await prisma.checklistSession.create({
-      data: {
-        userId,
-        companyId: company.id,
-        businessType: payload.data.businessType,
-        ventureStage: payload.data.ventureStage,
-        immediateGoal: payload.data.immediateGoal,
-        teamStatus: payload.data.teamStatus || null,
-        timeline: payload.data.timeline || null,
-        status: "active",
-      },
+    const sessionData = {
+      businessType: payload.data.businessType,
+      ventureStage: payload.data.ventureStage,
+      immediateGoal: payload.data.immediateGoal,
+      teamStatus: payload.data.teamStatus || null,
+      timeline: payload.data.timeline || null,
+      status: "active",
+    };
+    const session = await prisma.$transaction(async (tx) => {
+      const activeSession = await tx.checklistSession.findFirst({
+        where: {
+          userId,
+          companyId: company.id,
+          status: "active",
+        },
+        orderBy: { updatedAt: "desc" },
+      });
+
+      if (!activeSession) {
+        return tx.checklistSession.create({
+          data: {
+            userId,
+            companyId: company.id,
+            ...sessionData,
+          },
+        });
+      }
+
+      await tx.checklistSession.updateMany({
+        where: {
+          userId,
+          companyId: company.id,
+          status: "active",
+          id: { not: activeSession.id },
+        },
+        data: { status: "inactive" },
+      });
+
+      return tx.checklistSession.update({
+        where: { id: activeSession.id },
+        data: sessionData,
+      });
     });
 
     return NextResponse.json({
       ok: true,
       session: sessionResponse(session),
     });
-  } catch {
+  } catch (error) {
+    console.error("CHECKLIST_SESSION_ERROR", {
+      name: error instanceof Error ? error.name : undefined,
+      message: error instanceof Error ? error.message : undefined,
+    });
+
     return NextResponse.json(
       {
         ok: false,
-        error: "Unable to create checklist session.",
+        error: "CHECKLIST_SESSION_ERROR",
       },
       { status: 500 },
     );

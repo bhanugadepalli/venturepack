@@ -34,9 +34,20 @@ type AnswerRecord = AdaptiveChecklistAnswer & {
 function unauthorizedResponse() {
   return NextResponse.json(
     {
-      error: "Authentication required.",
+      ok: false,
+      error: "UNAUTHORIZED",
     },
     { status: 401 },
+  );
+}
+
+function notFoundResponse() {
+  return NextResponse.json(
+    {
+      ok: false,
+      error: "NOT_FOUND",
+    },
+    { status: 404 },
   );
 }
 
@@ -85,6 +96,24 @@ function buildProgress(questions: QuestionRecord[], answers: AnswerRecord[]) {
   };
 }
 
+function generatedBriefResponse(brief: {
+  id: string;
+  briefType: string;
+  title: string;
+  generatedContent: Prisma.JsonValue;
+  generatedAt: Date;
+  founderApprovalStatus: string;
+}) {
+  return {
+    id: brief.id,
+    briefType: brief.briefType,
+    title: brief.title,
+    generatedContent: brief.generatedContent,
+    generatedAt: brief.generatedAt.toISOString(),
+    founderApprovalStatus: brief.founderApprovalStatus,
+  };
+}
+
 export async function POST(request: Request) {
   try {
     const userId = await getAuthenticatedUserId();
@@ -110,7 +139,7 @@ export async function POST(request: Request) {
     const company = await getCurrentCompany(userId);
 
     if (!company) {
-      return NextResponse.json({ ok: false, error: "NO_ACTIVE_CHECKLIST_SESSION" }, { status: 400 });
+      return notFoundResponse();
     }
 
     const session = await prisma.checklistSession.findFirst({
@@ -129,7 +158,29 @@ export async function POST(request: Request) {
     });
 
     if (!session) {
-      return NextResponse.json({ ok: false, error: "NO_ACTIVE_CHECKLIST_SESSION" }, { status: 400 });
+      return notFoundResponse();
+    }
+
+    const recentDraft = await prisma.generatedBrief.findFirst({
+      where: {
+        userId,
+        companyId: company.id,
+        checklistSessionId: session.id,
+        briefType,
+        founderApprovalStatus: "draft",
+        generatedAt: {
+          gte: new Date(Date.now() - 10_000),
+        },
+      },
+      orderBy: { generatedAt: "desc" },
+    });
+
+    if (recentDraft) {
+      return NextResponse.json({
+        ok: true,
+        provider: "rules",
+        brief: generatedBriefResponse(recentDraft),
+      });
     }
 
     const questions = session.questions as QuestionRecord[];
@@ -175,16 +226,14 @@ export async function POST(request: Request) {
     return NextResponse.json({
       ok: true,
       provider,
-      brief: {
-        id: savedBrief.id,
-        briefType,
-        title,
-        generatedContent: content,
-        generatedAt: generatedAt.toISOString(),
-        founderApprovalStatus: savedBrief.founderApprovalStatus,
-      },
+      brief: generatedBriefResponse(savedBrief),
     });
-  } catch {
+  } catch (error) {
+    console.error("BRIEF_GENERATION_ERROR", {
+      name: error instanceof Error ? error.name : undefined,
+      message: error instanceof Error ? error.message : undefined,
+    });
+
     return NextResponse.json(
       {
         ok: false,

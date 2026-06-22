@@ -46,7 +46,7 @@ export type ValidatedAdaptiveChecklistAiOutput = {
 
 const maxQuestionsPerCategory = 5;
 const maxTotalQuestions = 32;
-const minimumValidQuestions = 3;
+const minimumValidQuestions = 8;
 const blockedPhrases = [
   "legal advice",
   "legal conclusion",
@@ -83,6 +83,19 @@ function removeLegalAdviceWording(value: unknown) {
   return nextValue;
 }
 
+function hasBlockedPhrase(value: unknown) {
+  const text = trimString(value).toLowerCase();
+  return blockedPhrases.some((phrase) => text.includes(phrase));
+}
+
+function normalizedTextKey(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function safeSlug(value: unknown, fallback: string) {
   const slug = trimString(value)
     .toLowerCase()
@@ -114,8 +127,12 @@ function dedupeStrings(values: unknown[], maxItems: number) {
   const results: string[] = [];
 
   for (const value of values) {
+    if (hasBlockedPhrase(value)) {
+      continue;
+    }
+
     const text = removeLegalAdviceWording(value);
-    const key = text.toLowerCase();
+    const key = normalizedTextKey(text);
 
     if (!text || seen.has(key)) {
       continue;
@@ -167,9 +184,13 @@ export function sanitizeAiChecklistQuestions(validatedOutput: ValidatedAdaptiveC
         continue;
       }
 
+      if (hasBlockedPhrase(question.questionText) || hasBlockedPhrase(question.whyItMatters)) {
+        continue;
+      }
+
       const questionText = removeLegalAdviceWording(question.questionText);
       const whyItMatters = removeLegalAdviceWording(question.whyItMatters);
-      const textKey = questionText.toLowerCase();
+      const textKey = normalizedTextKey(questionText);
 
       if (!questionText || !whyItMatters || seenQuestionText.has(textKey)) {
         continue;

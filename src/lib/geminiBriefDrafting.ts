@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { safeParseJson } from "@/src/lib/safeJson";
 
 type BriefType = "COUNSEL_BRIEF" | "PITCH_BRIEF";
 
@@ -59,6 +60,19 @@ const prohibitedPhrases = [
   "contract review",
   "legal conclusion",
 ];
+const fabricatedFactPatterns = [
+  /\btraction exists\b/i,
+  /\brevenue exists\b/i,
+  /\bentity formed\b/i,
+  /\bownership agreement exists\b/i,
+  /\bcustomers exist\b/i,
+  /\bfunding exists\b/i,
+  /\bhas traction\b/i,
+  /\bhas revenue\b/i,
+  /\bhas customers\b/i,
+  /\bhas funding\b/i,
+  /\bformed entity\b/i,
+];
 
 function disclaimerForBrief(briefType: BriefType) {
   return briefType === "COUNSEL_BRIEF" ? counselDisclaimer : pitchDisclaimer;
@@ -86,7 +100,65 @@ function removeProhibitedLanguage(value: unknown, maxLength = 1200) {
   return nextValue;
 }
 
-function stringArray(value: unknown, maxItems = 12) {
+function normalizedTextKey(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function containsFabricatedFact(value: string) {
+  return fabricatedFactPatterns.some((pattern) => pattern.test(value));
+}
+
+function explicitFactCorpus(input: GeminiBriefDraftingInput) {
+  const companyValues = Object.values(safeCompanyFacts(input.company)).filter(Boolean);
+  const sessionValues = Object.values(safeSessionFacts(input.session)).filter(Boolean);
+  const questionAnswerValues = safeQuestionAnswerFacts(input.questions, input.answers).flatMap((item) => [
+    item.questionText,
+    item.answer,
+    item.supportingDetail,
+  ]);
+  const rulesValues = input.rulesBasedContent.sections.flatMap((section) => [
+    ...section.founderSuppliedFacts,
+    section.platformOrganizedSummary,
+    ...section.missingInformation,
+  ]);
+
+  return [...companyValues, ...sessionValues, ...questionAnswerValues, ...rulesValues].filter(Boolean).join(" ").toLowerCase();
+}
+
+function hasExplicitSupport(value: string, corpus: string) {
+  const normalized = normalizedTextKey(value);
+
+  if (!normalized || !containsFabricatedFact(value)) {
+    return true;
+  }
+
+  return normalizedTextKey(corpus).includes(normalized);
+}
+
+function cleanBriefString(value: unknown, corpus: string, maxLength = 1200) {
+  const text = removeProhibitedLanguage(value, maxLength);
+
+  if (!text) {
+    return "";
+  }
+
+  if (!containsFabricatedFact(text)) {
+    return text;
+  }
+
+  const sentences = text
+    .split(/(?<=[.!?])\s+/)
+    .map((sentence) => sentence.trim())
+    .filter((sentence) => sentence && (!containsFabricatedFact(sentence) || hasExplicitSupport(sentence, corpus)));
+
+  return sentences.join(" ").trim();
+}
+
+function stringArray(value: unknown, maxItems = 12, corpus = "") {
   if (!Array.isArray(value)) {
     return [];
   }
@@ -95,8 +167,8 @@ function stringArray(value: unknown, maxItems = 12) {
   const results: string[] = [];
 
   for (const item of value) {
-    const text = removeProhibitedLanguage(item);
-    const key = text.toLowerCase();
+    const text = cleanBriefString(item, corpus);
+    const key = normalizedTextKey(text);
 
     if (!text || seen.has(key)) {
       continue;
@@ -264,37 +336,13 @@ function errorDetails(error: unknown) {
   };
 }
 
-function stripMarkdownFences(value: string) {
-  const text = value.trim();
-  const fenced = text.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
-  return fenced ? fenced[1].trim() : text;
-}
-
-function parseGeminiJson(value: string) {
-  const stripped = stripMarkdownFences(value);
-
-  try {
-    return JSON.parse(stripped);
-  } catch {
-    const match = stripped.match(/\{[\s\S]*\}/);
-
-    if (!match) {
-      return null;
-    }
-
-    try {
-      return JSON.parse(match[0]);
-    } catch {
-      return null;
-    }
-  }
-}
-
-function validateBriefContent(raw: unknown, briefType: BriefType): BriefContent | null {
+function validateBriefContent(raw: unknown, briefType: BriefType, input: GeminiBriefDraftingInput): BriefContent | null {
   if (!isRecord(raw) || !Array.isArray(raw.sections) || !Array.isArray(raw.warnings) || typeof raw.disclaimer !== "string") {
     return null;
   }
 
+  const corpus = explicitFactCorpus(input);
+  const seenSectionTitles = new Set<string>();
   const sections = raw.sections
     .map((sectionValue): BriefSection | null => {
       if (
@@ -307,18 +355,28 @@ function validateBriefContent(raw: unknown, briefType: BriefType): BriefContent 
         return null;
       }
 
-      const title = removeProhibitedLanguage(sectionValue.title, 160);
-      const platformOrganizedSummary = removeProhibitedLanguage(sectionValue.platformOrganizedSummary, 1800);
+      const title = cleanBriefString(sectionValue.title, corpus, 160);
+      const titleKey = normalizedTextKey(title);
+      const platformOrganizedSummary = cleanBriefString(sectionValue.platformOrganizedSummary, corpus, 1800);
 
-      if (!title || !platformOrganizedSummary) {
+      if (!title || !titleKey || seenSectionTitles.has(titleKey) || !platformOrganizedSummary) {
         return null;
       }
 
+      const founderSuppliedFacts = stringArray(sectionValue.founderSuppliedFacts, 20, corpus);
+      const missingInformation = stringArray(sectionValue.missingInformation, 20, corpus);
+
+      if (founderSuppliedFacts.length === 0 && missingInformation.length === 0 && platformOrganizedSummary === "Not yet provided.") {
+        return null;
+      }
+
+      seenSectionTitles.add(titleKey);
+
       return {
         title,
-        founderSuppliedFacts: stringArray(sectionValue.founderSuppliedFacts, 20),
+        founderSuppliedFacts,
         platformOrganizedSummary,
-        missingInformation: stringArray(sectionValue.missingInformation, 20),
+        missingInformation,
       };
     })
     .filter((section): section is BriefSection => Boolean(section));
@@ -329,7 +387,7 @@ function validateBriefContent(raw: unknown, briefType: BriefType): BriefContent 
 
   return {
     sections,
-    warnings: stringArray(raw.warnings, 20),
+    warnings: stringArray(raw.warnings, 20, corpus),
     disclaimer: disclaimerForBrief(briefType),
   };
 }
@@ -359,8 +417,8 @@ export async function generateBriefDraftWithGemini(input: GeminiBriefDraftingInp
         responseMimeType: "application/json",
       },
     });
-    const parsed = parseGeminiJson(result.response.text());
-    const content = validateBriefContent(parsed, input.briefType);
+    const parsed = safeParseJson(result.response.text());
+    const content = validateBriefContent(parsed, input.briefType, input);
 
     if (!content) {
       return {

@@ -20,9 +20,20 @@ type ChecklistQuestionTemplate = {
 function unauthorizedResponse() {
   return NextResponse.json(
     {
-      error: "Authentication required.",
+      ok: false,
+      error: "UNAUTHORIZED",
     },
     { status: 401 },
+  );
+}
+
+function notFoundResponse() {
+  return NextResponse.json(
+    {
+      ok: false,
+      error: "NOT_FOUND",
+    },
+    { status: 404 },
   );
 }
 
@@ -92,6 +103,37 @@ function questionsFromGeminiOutput(output: ValidatedAdaptiveChecklistAiOutput): 
   );
 }
 
+function normalizedQuestionKey(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9\s_]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function dedupeQuestionTemplates(questions: ChecklistQuestionTemplate[]) {
+  const seen = new Set<string>();
+  let sortOrder = 0;
+  const deduped: ChecklistQuestionTemplate[] = [];
+
+  for (const question of questions) {
+    const key = `${question.categoryKey}:${normalizedQuestionKey(question.questionKey)}:${normalizedQuestionKey(question.questionText)}`;
+
+    if (seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    sortOrder += 1;
+    deduped.push({
+      ...question,
+      sortOrder,
+    });
+  }
+
+  return deduped;
+}
+
 export async function POST() {
   try {
     const userId = await getAuthenticatedUserId();
@@ -103,10 +145,7 @@ export async function POST() {
     const company = await getCurrentCompany(userId);
 
     if (!company) {
-      return NextResponse.json({
-        ok: false,
-        error: "NO_ACTIVE_CHECKLIST_SESSION",
-      });
+      return notFoundResponse();
     }
 
     const session = await prisma.checklistSession.findFirst({
@@ -119,17 +158,14 @@ export async function POST() {
     });
 
     if (!session) {
-      return NextResponse.json({
-        ok: false,
-        error: "NO_ACTIVE_CHECKLIST_SESSION",
-      });
+      return notFoundResponse();
     }
 
     const geminiResult = await generateAdaptiveChecklistWithGemini({ company, session });
     const provider = geminiResult.ok ? "gemini" : "rules";
-    const questionTemplates = geminiResult.ok
-      ? questionsFromGeminiOutput(geminiResult.checklist)
-      : getDefaultAdaptiveChecklistQuestions(session);
+    const questionTemplates = dedupeQuestionTemplates(
+      geminiResult.ok ? questionsFromGeminiOutput(geminiResult.checklist) : getDefaultAdaptiveChecklistQuestions(session),
+    );
     const questions = await prisma.$transaction(async (tx) => {
       await tx.checklistAnswer.deleteMany({
         where: { sessionId: session.id },
@@ -174,11 +210,16 @@ export async function POST() {
       provider,
       questions: questions.map(questionResponse),
     });
-  } catch {
+  } catch (error) {
+    console.error("CHECKLIST_QUESTION_GENERATION_ERROR", {
+      name: error instanceof Error ? error.name : undefined,
+      message: error instanceof Error ? error.message : undefined,
+    });
+
     return NextResponse.json(
       {
         ok: false,
-        error: "Unable to generate checklist questions.",
+        error: "CHECKLIST_QUESTION_GENERATION_ERROR",
       },
       { status: 500 },
     );

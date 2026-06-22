@@ -5,9 +5,20 @@ import { prisma } from "@/src/lib/prisma";
 function unauthorizedResponse() {
   return NextResponse.json(
     {
-      error: "Authentication required.",
+      ok: false,
+      error: "UNAUTHORIZED",
     },
     { status: 401 },
+  );
+}
+
+function notFoundResponse() {
+  return NextResponse.json(
+    {
+      ok: false,
+      error: "NOT_FOUND",
+    },
+    { status: 404 },
   );
 }
 
@@ -55,7 +66,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const company = await getCurrentCompany(userId);
 
     if (!company) {
-      return NextResponse.json({ ok: false, error: "BRIEF_NOT_FOUND" }, { status: 404 });
+      return notFoundResponse();
     }
 
     const brief = await prisma.generatedBrief.findFirst({
@@ -68,7 +79,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     });
 
     if (!brief) {
-      return NextResponse.json({ ok: false, error: "BRIEF_NOT_FOUND" }, { status: 404 });
+      return notFoundResponse();
     }
 
     const reviewedBrief = await prisma.generatedBrief.update({
@@ -84,7 +95,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       ok: true,
       brief: reviewedBrief,
     });
-  } catch {
-    return NextResponse.json({ ok: false, error: "BRIEF_REVIEW_FAILED" }, { status: 500 });
+  } catch (error) {
+    console.error("BRIEF_REVIEW_ERROR", {
+      name: error instanceof Error ? error.name : undefined,
+      message: error instanceof Error ? error.message : undefined,
+    });
+
+    return NextResponse.json({ ok: false, error: "BRIEF_REVIEW_ERROR" }, { status: 500 });
   }
 }

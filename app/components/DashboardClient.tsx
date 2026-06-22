@@ -147,7 +147,7 @@ export function DashboardClient({
                       ))}
                     </ul>
                   ) : (
-                    <p className="mt-2 text-sm leading-6 text-[#64748B]">No top missing facts are available yet.</p>
+                    <p className="mt-2 text-sm leading-6 text-[#64748B]">No major missing facts are showing right now.</p>
                   )}
                 </div>
                 {ventureProgress < 50 ? (
@@ -158,9 +158,9 @@ export function DashboardClient({
               </>
             ) : (
               <>
-                <h2 className="mt-3 text-2xl font-bold tracking-tight text-[#00173C]">Build your personalized startup checklist</h2>
+                <h2 className="mt-3 text-2xl font-bold tracking-tight text-[#00173C]">Build your personalized startup checklist.</h2>
                 <p className="mt-3 text-sm leading-6 text-[#64748B]">
-                  Answer a few questions about what you are building, where you are, and what you are preparing for.
+                  Answer a few questions about your venture so VenturePack can organize your preparation.
                 </p>
               </>
             )}
