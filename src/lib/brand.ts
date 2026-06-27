@@ -1,8 +1,8 @@
 export const BRAND = {
   name: "VenturePack",
-  tagline: "Prepare your startup before the first legal conversation.",
+  tagline: "Your startup preparation dashboard.",
   logo: "/brand/venturepack-logo-transparent.png",
-  disclaimer: "VenturePack is not a law firm and does not provide legal advice.",
+  disclaimer: "Based on your completed checklist items. Not legal, financial, or investment advice.",
 } as const;
 
 export const BRAND_COLORS = {

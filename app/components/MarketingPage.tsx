@@ -42,9 +42,9 @@ export function MarketingPage({ eyebrow, title, description, sections }: Marketi
       <section className="border-y border-[#DCE7F3] bg-white px-6 py-16 sm:px-8 lg:px-10">
         <div className="mx-auto max-w-7xl rounded-3xl bg-[#00173C] p-8 text-white">
           <Badge tone="amber">Preparation, with boundaries.</Badge>
-          <h2 className="mt-4 text-3xl font-bold">VenturePack is not a law firm and does not provide legal advice.</h2>
+          <h2 className="mt-4 text-3xl font-bold">Your startup preparation dashboard.</h2>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-[#DCE7F3]">
-            VenturePack helps founders organize founder-supplied information, track Venture Progress, and prepare briefs they can review before pitching, launching, or meeting counsel.
+            Track your progress across the key areas every young venture needs to organize before launch.
           </p>
         </div>
       </section>

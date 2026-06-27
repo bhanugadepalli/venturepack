@@ -122,7 +122,7 @@ export function calculateCategoryPreparationCompletion(
   return roundPercentage(total / activeQuestions.length);
 }
 
-// Overall Venture Progress is the average of active category Preparation Completion percentages.
+// Overall Venture Progress is the average of active category overall preparation percentages.
 export function calculateOverallVentureProgress(categoryPercentages: Array<number | null | undefined> | null | undefined) {
   const activePercentages = Array.isArray(categoryPercentages)
     ? categoryPercentages.filter((percentage): percentage is number => typeof percentage === "number" && Number.isFinite(percentage))

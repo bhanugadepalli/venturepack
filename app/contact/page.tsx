@@ -10,7 +10,7 @@ const inquiryTypes = [
   },
   {
     title: "Accelerator/cohort inquiries",
-    body: "Explore how VenturePack could help teams gather consistent preparation information before office hours, presentations, or referrals.",
+    body: "Explore how VenturePack could help teams gather consistent preparation information before office hours, presentations, or launch milestones.",
   },
   {
     title: "Attorney partnership inquiries",
@@ -33,7 +33,7 @@ export default function ContactPage() {
               Talk to VenturePack.
             </h1>
             <p className="mt-6 text-lg leading-8 text-[#64748B]">
-              Reach out about founder preparation, cohort workflows, Counsel Brief structure, or general product questions.
+              Reach out about founder preparation, cohort workflows, startup preparation dashboards, or general product questions.
             </p>
             <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
               {inquiryTypes.map((inquiry) => (
@@ -51,7 +51,7 @@ export default function ContactPage() {
       <section className="bg-white px-6 py-12 sm:px-8 lg:px-10">
         <div className="mx-auto max-w-7xl rounded-3xl border border-[#DCE7F3] bg-[#F8FAFC] p-6">
           <p className="text-sm leading-6 text-[#64748B]">
-            VenturePack is not a law firm and does not provide legal advice. Contact messages do not create an attorney-client relationship or attorney representation.
+            Based on your completed checklist items. Not legal, financial, or investment advice.
           </p>
         </div>
       </section>

@@ -3,14 +3,14 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "VenturePack",
-  description: "Prepare your startup before the first legal conversation.",
+  description: "Your startup preparation dashboard.",
   icons: {
     icon: "/brand/venturepack-icon-transparent.png",
     apple: "/brand/venturepack-icon-transparent.png",
   },
   openGraph: {
     title: "VenturePack",
-    description: "Prepare your startup before the first legal conversation.",
+    description: "Your startup preparation dashboard.",
   },
 };
 

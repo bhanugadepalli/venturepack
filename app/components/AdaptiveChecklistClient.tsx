@@ -938,7 +938,7 @@ export function AdaptiveChecklistClient({ requestedBriefType }: { requestedBrief
                   <div>
                     <h3 className="text-xl font-bold text-[#00173C]">{group.categoryName}</h3>
                     <p className="mt-1 text-sm font-semibold text-[#64748B]">
-                      Preparation Completion: {progressByCategory.get(group.categoryKey)?.preparationCompletion ?? 0}%
+                      Overall preparation: {progressByCategory.get(group.categoryKey)?.preparationCompletion ?? 0}%
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2">

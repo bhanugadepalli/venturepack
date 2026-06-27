@@ -9,7 +9,7 @@ const steps = [
   },
   {
     title: "Build your Adaptive Venture Checklist",
-    body: "Select your business type, current stage, immediate goal, team status, and timeline.",
+    body: "Answer a few questions about what you are building and what you are preparing for.",
   },
   {
     title: "Answer specialized questions",
@@ -73,7 +73,7 @@ export default function HowItWorksPage() {
             <Badge>Guided path</Badge>
             <h2 className="mt-4 text-3xl font-bold text-[#00173C] sm:text-4xl">A clean path from checklist to brief.</h2>
             <p className="mt-4 text-sm leading-6 text-[#64748B]">
-              The workflow is designed for young entrepreneurs who need structure around founder-supplied information before pitching, launching, or meeting counsel.
+              Track your progress across the key areas every young venture needs to organize before launch.
             </p>
           </div>
           <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -90,7 +90,7 @@ export default function HowItWorksPage() {
           <div className="mt-8 rounded-3xl border border-[#DCE7F3] bg-[#F8FAFC] p-6">
             <Badge>Boundary note</Badge>
             <p className="mt-4 text-sm leading-6 text-[#64748B]">
-              VenturePack organizes preparation information. It is not a law firm and does not provide legal advice.
+              Based on your completed checklist items. Not legal, financial, or investment advice.
             </p>
           </div>
         </div>

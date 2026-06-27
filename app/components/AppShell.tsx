@@ -53,7 +53,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Link href="/" className="inline-flex rounded-xl p-1 hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[rgba(0,158,167,0.28)]">
                 <VenturePackLogo width={150} height={40} className="h-8 w-auto max-w-[150px]" />
               </Link>
-              <p className="mt-2 hidden text-xs font-medium text-[#64748B] lg:block">Prepare before the first legal conversation.</p>
+              <p className="mt-2 hidden text-xs font-medium text-[#64748B] lg:block">Your startup preparation dashboard.</p>
             </div>
             <span className="rounded-full border border-[rgba(0,158,167,0.18)] bg-[rgba(0,158,167,0.10)] px-2.5 py-1 text-xs font-semibold text-[#008787]">MVP</span>
           </div>

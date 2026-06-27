@@ -2,17 +2,17 @@ import { MarketingShell } from "@/components/marketing/MarketingShell";
 import { Badge, Button, Card } from "./components/ui";
 
 const workflow = [
-  ["01", "Build your checklist", "Answer a few setup questions about your venture type, stage, goal, team status, and timeline."],
-  ["02", "Save founder-supplied facts", "Work through preparation questions and keep answers, supporting details, and review status in one workspace."],
-  ["03", "Track Venture Progress", "See category Preparation Completion, missing facts, and practical next actions as your venture record develops."],
+  ["01", "Build your personalized startup checklist", "Answer a few questions about what you are building and what you are preparing for."],
+  ["02", "Organize company information", "Organize company information before deployment or counsel conversations."],
+  ["03", "Track your progress", "Track your progress across the key areas every young venture needs to organize before launch."],
   ["04", "Generate preparation briefs", "Create Counsel Briefs and Pitch Briefs from saved facts, with missing information clearly separated."],
 ];
 
 const features = [
-  ["Personalized checklist by venture type", "Create preparation questions based on your business type, stage, goal, team status, and timeline."],
-  ["Venture Progress tracking", "See overall progress and category Preparation Completion from saved answers and founder review."],
+  ["Adaptive Venture Checklist", "Build your personalized startup checklist."],
+  ["Overall preparation", "Based on the information you have organized so far."],
   ["Missing facts and next actions", "Keep open details visible so your team can gather the information that still needs a home."],
-  ["Counsel Brief generation", "Organize company facts, contributor history, assets, open questions, and missing information before a counsel conversation."],
+  ["Counsel Brief generation", "Organize company information before deployment or counsel conversations."],
   ["Pitch Brief generation", "Turn startup facts into a clean preparation brief for pitches, mentors, class presentations, and accelerator conversations."],
   ["Organized venture record", "Keep founder-supplied information together instead of scattered across chats, notes, decks, and memory."],
 ];
@@ -20,7 +20,7 @@ const features = [
 const audiences = [
   ["Student founders", "Organize project origins, contributors, product notes, presentation timelines, and open questions."],
   ["Campus teams", "Capture who worked on what, which materials exist, and what still needs to be clarified."],
-  ["First-time founders", "Turn scattered company facts into a persistent workspace for pitching, launching, and meeting counsel."],
+  ["First-time founders", "Turn scattered company facts into a persistent workspace for pitching, launching, and deployment."],
   ["Accelerators and incubators", "Give founder cohorts a consistent preparation structure before office hours, presentations, or referrals."],
 ];
 
@@ -40,13 +40,13 @@ export default function Home() {
           <div className="grid items-center gap-14 lg:grid-cols-[1.02fr_0.98fr]">
             <div className="max-w-3xl">
               <span className="inline-flex w-fit rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-white shadow-sm backdrop-blur">
-                Startup launchpad command center
+                VenturePack
               </span>
               <h1 className="mt-6 text-5xl font-bold leading-[1.02] tracking-tight text-white sm:text-6xl lg:text-7xl">
-                The startup launchpad for organized founders.
+                Your startup preparation dashboard.
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-[#DCE7F3]">
-                Turn scattered startup facts into adaptive checklists, Venture Progress, Counsel Briefs, and Pitch Briefs.
+                Track your progress across the key areas every young venture needs to organize before launch.
               </p>
               <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
                 <Button href="/signup" className="bg-[#0B3E9F] px-5 py-3 text-white shadow-lg shadow-[#00173C]/20 hover:bg-[#00173C]">
@@ -72,8 +72,8 @@ export default function Home() {
                 <div className="rounded-3xl border border-[#DCE7F3] bg-[#F8FAFC] p-5">
                   <div className="mb-5 flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-sm font-semibold text-[#008787]">VenturePack workspace</p>
-                      <h2 className="mt-1 text-2xl font-bold text-[#00173C]">Launchpad snapshot</h2>
+                      <p className="text-sm font-semibold text-[#008787]">PREPARATION WORKSPACE</p>
+                      <h2 className="mt-1 text-2xl font-bold text-[#00173C]">Preparation Workspace</h2>
                     </div>
                     <span className="rounded-full bg-[rgba(0,158,167,0.10)] px-3 py-1 text-xs font-bold text-[#008787]">
                       In progress
@@ -83,7 +83,7 @@ export default function Home() {
                     <div className="flex items-center justify-between gap-4">
                       <div>
                         <p className="text-sm font-bold text-[#00173C]">Venture Progress</p>
-                        <p className="mt-1 text-xs leading-5 text-[#64748B]">Saved facts, reviewed answers, supporting details, and missing information.</p>
+                        <p className="mt-1 text-xs leading-5 text-[#64748B]">Based on the information you have organized so far.</p>
                       </div>
                       <span className="text-3xl font-bold text-[#0B3E9F]">72%</span>
                     </div>
@@ -93,8 +93,8 @@ export default function Home() {
                   </div>
                   <div className="mt-4 grid gap-4 sm:grid-cols-2">
                     <div className="rounded-2xl border border-[#DCE7F3] bg-white p-4 shadow-sm">
-                      <p className="text-sm font-bold text-[#00173C]">Adaptive Checklist</p>
-                      <p className="mt-2 text-xs leading-5 text-[#64748B]">Questions shaped by venture type, stage, goal, team status, and timeline.</p>
+                      <p className="text-sm font-bold text-[#00173C]">Adaptive Venture Checklist</p>
+                      <p className="mt-2 text-xs leading-5 text-[#64748B]">Answer a few questions about what you are building and what you are preparing for.</p>
                       <span className="mt-4 inline-flex rounded-full bg-[rgba(0,158,167,0.10)] px-2.5 py-1 text-xs font-bold text-[#008787]">
                         Personalized
                       </span>
@@ -140,8 +140,8 @@ export default function Home() {
               ["Scattered startup facts", "Ideas, notes, docs, decks, and saved messages are hard to use when they live in separate places."],
               ["Unclear founder roles", "Teams need one place to capture who is involved, what each person contributed, and what still needs clarity."],
               ["Missing product and asset details", "Product notes, code ownership, brand assets, data practices, and records need a structured home."],
-              ["Pitch and launch deadlines", "Upcoming presentations, launches, mentor meetings, and counsel conversations need visible preparation steps."],
-              ["Counsel questions saved too late", "Open questions are easier to review when they are captured while the facts are still fresh."],
+              ["Pitch and launch deadlines", "Upcoming presentations, launches, mentor meetings, and deployment deadlines need visible preparation steps."],
+              ["Open questions saved too late", "Open questions are easier to review when they are captured while the facts are still fresh."],
             ].map(([title, body]) => (
               <Card key={title} className="shadow-sm">
                 <h3 className="text-lg font-bold text-[#00173C]">{title}</h3>
@@ -157,13 +157,13 @@ export default function Home() {
           <div className="rounded-3xl border border-[#DCE7F3] bg-[#F8FAFC] p-5 shadow-xl shadow-slate-200/60">
             <div className="rounded-2xl border border-[#DCE7F3] bg-white p-6">
               <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#008787]">Adaptive Venture Checklist</p>
-              <h3 className="mt-4 text-2xl font-bold text-[#00173C]">Personalized preparation questions</h3>
+              <h3 className="mt-4 text-2xl font-bold text-[#00173C]">Build your personalized startup checklist</h3>
               <p className="mt-3 text-sm leading-6 text-[#64748B]">Answer a few questions about what you are building and what you are preparing for.</p>
             </div>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div className="rounded-2xl border border-[#DCE7F3] bg-white p-5">
                 <h3 className="text-sm font-bold text-[#00173C]">Venture Progress</h3>
-                <p className="mt-2 text-sm leading-6 text-[#64748B]">Track completion of requested preparation information by category.</p>
+                <p className="mt-2 text-sm leading-6 text-[#64748B]">Track your progress across the key areas every young venture needs to organize before launch.</p>
               </div>
               <div className="rounded-2xl border border-[#DCE7F3] bg-white p-5">
                 <h3 className="text-sm font-bold text-[#00173C]">Missing facts</h3>
@@ -177,7 +177,7 @@ export default function Home() {
               Adaptive Venture Checklist
             </h2>
             <p className="mt-5 text-lg leading-8 text-[#64748B]">
-              VenturePack creates a personalized preparation checklist based on your business type, stage, goal, team status, and timeline.
+              Build your personalized startup checklist. Answer a few questions about what you are building and what you are preparing for.
             </p>
           </div>
         </div>
@@ -214,7 +214,7 @@ export default function Home() {
               Everything organized founders need to prepare.
             </h2>
             <p className="mt-4 text-lg leading-8 text-[#64748B]">
-              VenturePack helps young entrepreneurs turn scattered startup facts into checklists, progress, and preparation briefs for pitching, launching, and meeting counsel.
+              VenturePack helps young entrepreneurs turn scattered startup facts into checklists, progress, and preparation briefs for pitching, launching, and deployment.
             </p>
           </div>
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -260,7 +260,7 @@ export default function Home() {
           </div>
           <div className="rounded-3xl border border-white/15 bg-white/10 p-6 backdrop-blur sm:p-8">
             <p className="text-lg leading-8 text-[#EAF4FF]">
-              VenturePack organizes preparation information. It is not a law firm and does not provide legal advice. It does not review contracts, determine compliance, score legal risk, or replace qualified counsel.
+              Based on your completed checklist items. Not legal, financial, or investment advice.
             </p>
           </div>
         </div>
@@ -278,7 +278,7 @@ export default function Home() {
             <Card className="shadow-sm">
               <Badge>Counsel Brief</Badge>
               <p className="mt-5 text-lg leading-8 text-[#334155]">
-                Organize company facts, founder details, contributor history, assets, open questions, and missing information before a counsel conversation.
+                Organize company information before deployment or counsel conversations.
               </p>
             </Card>
             <Card className="shadow-sm">
@@ -353,10 +353,10 @@ export default function Home() {
         <div className="mx-auto max-w-4xl text-center">
           <Badge>Ready to prepare</Badge>
           <h2 className="mt-5 text-4xl font-bold tracking-tight text-[#00173C] sm:text-5xl">
-            Build your checklist. Organize your venture.
+            Build your personalized startup checklist.
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-[#64748B]">
-            Start with a few questions. Leave with structured progress, clearer next actions, and preparation briefs you can review before pitching, launching, or meeting counsel.
+            Track your progress across the key areas every young venture needs to organize before launch.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Button href="/signup">Build My Checklist</Button>

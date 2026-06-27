@@ -5,7 +5,7 @@ import { Badge, Card } from "../components/ui";
 const features = [
   {
     title: "Adaptive Venture Checklist",
-    body: "Create a personalized checklist based on business type, stage, goal, team status, and timeline.",
+    body: "Build your personalized startup checklist.",
     bullets: [
       "Software app, AI tool, marketplace, service business, e-commerce, and student venture options",
       "Questions grouped by stable preparation categories",
@@ -15,10 +15,10 @@ const features = [
   },
   {
     title: "Venture Progress",
-    body: "Track how much requested preparation information has been completed.",
+    body: "Track your progress across the key areas every young venture needs to organize before launch.",
     bullets: [
       "Overall Venture Progress",
-      "Category Preparation Completion",
+      "Overall preparation",
       "Deterministic scoring",
       "Missing facts panel",
     ],
@@ -26,7 +26,7 @@ const features = [
   },
   {
     title: "Counsel Brief",
-    body: "Compile company facts, founder information, contributor history, assets, open questions, missing information, and supporting records before a counsel conversation.",
+    body: "Organize company information before deployment or counsel conversations.",
   },
   {
     title: "Pitch Brief",
@@ -53,7 +53,7 @@ export default function FeaturesPage() {
               Everything founders need to organize the venture before the next big step.
             </h1>
             <p className="mt-6 text-lg leading-8 text-[#64748B]">
-              VenturePack gives young entrepreneurs a structured workspace for facts, checklists, progress, and preparation briefs.
+              VenturePack is your startup preparation dashboard.
             </p>
           </div>
           <div className="mt-12 grid gap-5 md:grid-cols-2">

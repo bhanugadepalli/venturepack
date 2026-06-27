@@ -22,7 +22,7 @@ const plans = [
     name: "Founder",
     price: "$19/month",
     badge: "Coming soon",
-    subtitle: "For founders preparing to pitch, launch, or meet counsel.",
+    subtitle: "For founders preparing to pitch, launch, or deploy.",
     cta: "Join Waitlist",
     href: "/signup",
     highlighted: true,
@@ -87,7 +87,7 @@ export default function PricingPage() {
             </span>
             <h1 className="mt-5 text-4xl font-bold tracking-tight sm:text-6xl">Simple pricing for organized founders.</h1>
             <p className="mt-6 text-lg leading-8 text-[#DCE7F3]">
-              VenturePack helps founders organize startup preparation, build adaptive checklists, track Venture Progress, and generate preparation briefs.
+              VenturePack is your startup preparation dashboard.
             </p>
           </div>
         </div>
@@ -132,7 +132,7 @@ export default function PricingPage() {
         <div className="mx-auto max-w-7xl rounded-3xl border border-[#DCE7F3] bg-[#F8FAFC] p-6 sm:p-8">
           <Badge>Pricing note</Badge>
           <p className="mt-4 text-sm leading-6 text-[#64748B]">
-            VenturePack organizes preparation information. It is not a law firm and does not provide legal advice.
+            Based on your completed checklist items. Not legal, financial, or investment advice.
           </p>
           <p className="mt-2 text-sm leading-6 text-[#64748B]">Stripe payments are not connected yet.</p>
         </div>

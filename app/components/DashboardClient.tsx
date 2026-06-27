@@ -202,7 +202,7 @@ export function DashboardClient({
         </Card>
         <Card className="border-[#009EA7]/30 bg-[rgba(0,158,167,0.10)] shadow-md shadow-[#00173C]/[0.04]">
           <Badge tone="indigo">Important</Badge>
-          <h2 className="mt-3 text-xl font-bold">Prepare for first attorney meeting</h2>
+          <h2 className="mt-3 text-xl font-bold">Your startup preparation dashboard.</h2>
           <p className="mt-2 text-sm leading-6 text-[#64748B]">
             Review missing items, gather documents, and write focused questions before the conversation.
           </p>

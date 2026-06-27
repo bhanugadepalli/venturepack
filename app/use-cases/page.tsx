@@ -4,8 +4,8 @@ import { Badge, Button, Card } from "../components/ui";
 
 const useCases = [
   {
-    title: "First attorney meeting",
-    body: "Prepare a Counsel Brief with company facts, founder context, contributor history, assets, open questions, and missing information.",
+    title: "Startup preparation",
+    body: "Organize company information before deployment or counsel conversations.",
   },
   {
     title: "Pitch competition",
@@ -63,7 +63,7 @@ export default function UseCasesPage() {
         <div className="mx-auto mt-8 max-w-7xl rounded-3xl border border-[#DCE7F3] bg-[#F8FAFC] p-6">
           <Badge>Boundary</Badge>
           <p className="mt-4 text-sm leading-6 text-[#64748B]">
-            VenturePack supports preparation and organization. It does not provide legal advice, investment advice, contract review, or compliance certification.
+            Based on your completed checklist items. Not legal, financial, or investment advice.
           </p>
         </div>
       </section>

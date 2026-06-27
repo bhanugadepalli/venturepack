@@ -28,8 +28,8 @@ export function PreparationChecklist({ items, completionPercentage, compact = fa
   if (!items.length) {
     return (
       <section className="rounded-3xl border border-[#DCE7F3] bg-white p-5 shadow-md shadow-[#00173C]/[0.04]">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#008787]">Preparation Checklist</p>
-        <h2 className="mt-2 text-2xl font-bold tracking-tight text-[#00173C]">Preparation Completion</h2>
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#008787]">Adaptive Venture Checklist</p>
+        <h2 className="mt-2 text-2xl font-bold tracking-tight text-[#00173C]">Overall preparation</h2>
         <p className="mt-3 text-sm leading-6 text-[#64748B]">
           Your preparation checklist will appear as you build your workspace.
         </p>
@@ -42,14 +42,14 @@ export function PreparationChecklist({ items, completionPercentage, compact = fa
       <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h2 className={`${compact ? "text-lg" : "text-2xl"} font-bold tracking-tight text-[#00173C]`}>
-            Preparation Checklist
+            Adaptive Venture Checklist
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-[#64748B]">
             Track the information you are compiling before generating your counsel packet.
           </p>
         </div>
         <div className="min-w-52 rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-4">
-          <p className="text-sm font-semibold text-[#64748B]">Preparation Completion</p>
+          <p className="text-sm font-semibold text-[#64748B]">Overall preparation</p>
           <p className={`${compact ? "text-2xl" : "text-3xl"} mt-1 font-bold text-[#00173C]`}>
             {normalizedCompletion}%
           </p>

@@ -13,7 +13,7 @@ const principles = [
   },
   {
     title: "Make preparation clearer",
-    body: "The goal is a structured venture record founders can review before pitching, launching, or meeting counsel.",
+    body: "The goal is a structured venture record founders can review before pitching, launching, or deployment.",
   },
 ];
 
@@ -28,7 +28,7 @@ export default function AboutPage() {
               Built for young entrepreneurs who need structure.
             </h1>
             <p className="mt-6 text-lg leading-8 text-[#64748B]">
-              VenturePack was created by Akhil, an economics student preparing for a career in startup law. He saw that early founders often have the facts somewhere, but not in a structure they can use for pitching, launching, or meeting counsel.
+              VenturePack is your startup preparation dashboard. It helps early founders turn scattered facts into a structure they can use for pitching, launching, or deployment.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button href="/signup">Build My Checklist</Button>
@@ -38,7 +38,7 @@ export default function AboutPage() {
           <Card className="shadow-xl shadow-[#00173C]/8">
             <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#008787]">Founder note</p>
             <blockquote className="mt-5 text-2xl font-bold leading-tight text-[#00173C]">
-              Early founders should not need to know every legal term before they can organize the facts counsel will ask for.
+              Early founders should not need to know every term before they can organize the facts their venture needs.
             </blockquote>
             <p className="mt-5 text-sm leading-6 text-[#64748B]">
               VenturePack is intentionally practical: build an Adaptive Venture Checklist, track Venture Progress, save missing facts, and generate preparation briefs from founder-supplied information.

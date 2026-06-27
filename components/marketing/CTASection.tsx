@@ -8,8 +8,8 @@ type CTASectionProps = {
 };
 
 export function CTASection({
-  title = "Build your checklist. Organize your venture.",
-  description = "Start with a few questions. Leave with structured progress, clearer next actions, and preparation briefs you can review before pitching, launching, or meeting counsel.",
+  title = "Build your personalized startup checklist.",
+  description = "Track your progress across the key areas every young venture needs to organize before launch.",
   buttonLabel = "Build My Checklist",
   buttonHref = "/signup",
 }: CTASectionProps) {
