@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getSession, signOut } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { dashboardCopy } from "@/src/content/dashboardCopy";
 import { clearCompanyProfile } from "@/src/lib/storage";
 import { VenturePackLogo } from "@/components/VenturePackLogo";
 
@@ -12,9 +13,9 @@ const navItems = [
   { href: "/app/onboarding", label: "Onboarding", group: "Workspace" },
   { href: "/app/checklist", label: "Adaptive Checklist", group: "Workspace" },
   { href: "/app/company", label: "Company", group: "Workspace" },
-  { href: "/app/matters", label: "Matters", group: "Preparation" },
-  { href: "/app/counsel-packet", label: "Counsel packet", group: "Preparation" },
-  { href: "/app/attorney-match", label: "Attorney match", group: "Preparation" },
+  { href: "/app/matters", label: dashboardCopy.sidebar.items.overview, group: dashboardCopy.sidebar.sectionLabel },
+  { href: "/app/counsel-packet", label: dashboardCopy.sidebar.items.counselPacket, group: dashboardCopy.sidebar.sectionLabel },
+  { href: "/app/attorney-match", label: dashboardCopy.sidebar.items.attorneyMatching, group: dashboardCopy.sidebar.sectionLabel },
   { href: "/app/settings", label: "Settings", group: "Account" },
   { href: "/app/billing", label: "Billing", group: "Account" },
   { href: "/admin", label: "Admin", group: "Admin" },
@@ -57,7 +58,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <span className="rounded-full border border-[rgba(0,158,167,0.18)] bg-[rgba(0,158,167,0.10)] px-2.5 py-1 text-xs font-semibold text-[#008787]">MVP</span>
           </div>
           <nav className="flex gap-2 overflow-x-auto px-5 pb-4 lg:flex-1 lg:flex-col lg:px-4 lg:pb-6">
-            {["Workspace", "Preparation", "Account", "Admin"].map((group) => (
+            {["Workspace", dashboardCopy.sidebar.sectionLabel, "Account", "Admin"].map((group) => (
               <div key={group} className="flex gap-2 lg:flex-col">
                 <p className="hidden px-3 pt-3 text-xs font-bold uppercase tracking-[0.14em] text-[#94A3B8] lg:block">{group}</p>
                 {navItems.filter((item) => item.group === group).map((item) => (

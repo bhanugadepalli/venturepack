@@ -158,7 +158,7 @@ export default function Home() {
             <div className="rounded-2xl border border-[#DCE7F3] bg-white p-6">
               <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#008787]">Adaptive Venture Checklist</p>
               <h3 className="mt-4 text-2xl font-bold text-[#00173C]">Personalized preparation questions</h3>
-              <p className="mt-3 text-sm leading-6 text-[#64748B]">Answer a few questions about what you are building, where you are, and what you are preparing for.</p>
+              <p className="mt-3 text-sm leading-6 text-[#64748B]">Answer a few questions about what you are building and what you are preparing for.</p>
             </div>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div className="rounded-2xl border border-[#DCE7F3] bg-white p-5">

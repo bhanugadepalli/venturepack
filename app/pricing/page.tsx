@@ -61,7 +61,7 @@ const faqs = [
   {
     question: "What is Venture Progress?",
     answer:
-      "Venture Progress reflects completion of requested preparation information. It is not a legal opinion, compliance rating, investment judgment, or guarantee.",
+      "Based on your completed checklist items. Not legal, financial, or investment advice.",
   },
   {
     question: "What is the Adaptive Venture Checklist?",

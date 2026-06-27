@@ -14,7 +14,7 @@ export function ProgressCard({ item }: { item: PreparationCategoryScore | Prepar
         <div>
           <h2 className="text-base font-bold text-[#00173C]">{item.category}</h2>
           <p className="mt-2 text-sm leading-6 text-[#64748B]">
-            Preparation completion based on submitted founder and company information.
+            Based on the information you have organized so far.
           </p>
         </div>
         <span className="shrink-0 rounded-lg bg-[rgba(0,158,167,0.10)] px-2.5 py-1 text-sm font-bold text-[#008787]">

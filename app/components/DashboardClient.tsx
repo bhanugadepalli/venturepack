@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { PreparationChecklist } from "@/components/app/PreparationChecklist";
 import { SuggestMissingDetailsCard } from "@/components/app/SuggestMissingDetailsCard";
+import { dashboardCopy } from "@/src/content/dashboardCopy";
 import { fetchCompanyProfile } from "@/src/lib/companyApi";
 import { fetchMatters } from "@/src/lib/matterApi";
 import { calculatePreparationCompletion, getIncompletePreparationItems, getPreparationChecklist } from "@/src/lib/preparation";
@@ -84,18 +85,21 @@ export function DashboardClient({
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <span className="inline-flex rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-white">
-              Welcome back
+              {dashboardCopy.welcomeCard.title}
             </span>
             <h2 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
-              Prepare for the first attorney meeting.
+              {dashboardCopy.welcomeCard.subtitle}
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-[#DCE7F3]">
-              Your workspace is tracking deterministic preparation completion across {items.length} categories.
+              {dashboardCopy.welcomeCard.description}
             </p>
-            <p className="mt-3 text-xs text-[#BFECEF]">Last submitted {new Date(data.submittedAt).toLocaleString()}</p>
+            <p className="mt-3 text-xs text-[#BFECEF]">
+              {dashboardCopy.welcomeCard.lastSavedLabel} {new Date(data.submittedAt).toLocaleString()}
+            </p>
           </div>
           <div className="rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur lg:w-80">
-            <p className="text-sm font-semibold text-[#DCE7F3]">Overall preparation</p>
+            <p className="text-sm font-semibold text-[#DCE7F3]">{dashboardCopy.welcomeCard.overallPreparationTitle}</p>
+            <p className="mt-1 text-xs text-[#BFECEF]">{dashboardCopy.welcomeCard.overallPreparationDescription}</p>
             <p className="mt-2 text-6xl font-bold tracking-tight">{score.percent}%</p>
             <div className="mt-4"><ProgressBar value={score.percent} /></div>
           </div>
@@ -105,10 +109,10 @@ export function DashboardClient({
       <Card className="mb-6 border-[#009EA7]/30 shadow-lg shadow-[#00173C]/[0.06]">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-3xl">
-            <Badge tone="blue">Adaptive Venture Checklist</Badge>
+            <Badge tone="blue">{dashboardCopy.adaptiveChecklist.title}</Badge>
             {checklistSession ? (
               <>
-                <h2 className="mt-3 text-2xl font-bold tracking-tight text-[#00173C]">Adaptive Venture Checklist</h2>
+                <h2 className="mt-3 text-2xl font-bold tracking-tight text-[#00173C]">{dashboardCopy.adaptiveChecklist.title}</h2>
                 <div className="mt-5 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
                   {[
                     ["Business type", checklistSession.businessType],
@@ -158,15 +162,14 @@ export function DashboardClient({
               </>
             ) : (
               <>
-                <h2 className="mt-3 text-2xl font-bold tracking-tight text-[#00173C]">Build your personalized startup checklist.</h2>
+                <h2 className="mt-3 text-2xl font-bold tracking-tight text-[#00173C]">{dashboardCopy.adaptiveChecklist.subtitle}</h2>
                 <p className="mt-3 text-sm leading-6 text-[#64748B]">
-                  Answer a few questions about your venture so VenturePack can organize your preparation.
+                  {dashboardCopy.adaptiveChecklist.description}
                 </p>
               </>
             )}
             <p className="mt-5 text-xs leading-5 text-[#64748B]">
-              Venture Progress reflects completion of requested preparation information. It is not a legal opinion, compliance rating,
-              investment judgment, or guarantee.
+              {dashboardCopy.adaptiveChecklist.disclaimer}
             </p>
           </div>
           <div className="flex w-full flex-col gap-3 lg:w-64">
@@ -181,7 +184,7 @@ export function DashboardClient({
                 </Button>
               </>
             ) : (
-              <Button href="/app/checklist">Build My Checklist</Button>
+              <Button href="/app/checklist">{dashboardCopy.adaptiveChecklist.buttonLabel}</Button>
             )}
           </div>
         </div>

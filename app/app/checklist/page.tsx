@@ -20,7 +20,7 @@ export default async function AdaptiveChecklistPage({
       <PageHeader
         eyebrow="Venture Progress"
         title="Adaptive Venture Checklist"
-        description="Build a personalized preparation checklist based on what you are building, where you are, and what you are preparing for."
+        description="Build a personalized preparation checklist based on what you are building and what you are preparing for."
       />
       <AdaptiveChecklistClient requestedBriefType={requestedBriefType} />
     </>

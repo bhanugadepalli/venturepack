@@ -1,6 +1,7 @@
 import { DashboardClient } from "../components/DashboardClient";
 import { PageHeader } from "../components/PageHeader";
 import { auth } from "@/auth";
+import { dashboardCopy } from "@/src/content/dashboardCopy";
 import { getAdaptiveChecklistDashboardData } from "@/src/lib/adaptiveChecklistDashboard";
 import { prisma } from "@/src/lib/prisma";
 import type { AdaptiveChecklistDashboardViewData } from "../components/DashboardClient";
@@ -60,9 +61,9 @@ export default async function DashboardPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Preparation workspace"
-        title="Preparation completion"
-        description="Track how much founder, company, and matter preparation context has been organized before a counsel conversation."
+        eyebrow={dashboardCopy.preparationWorkspace.eyebrow}
+        title={dashboardCopy.preparationWorkspace.title}
+        description={dashboardCopy.preparationWorkspace.description}
       />
       <DashboardClient initialChecklistData={checklistDashboardData} />
     </>

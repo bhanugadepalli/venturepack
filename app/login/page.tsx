@@ -73,7 +73,7 @@ export default function LoginPage() {
             conversation with counsel.
           </p>
           <div className="mt-8 grid gap-3 sm:grid-cols-2">
-            {["Preparation completion", "Matter organization", "Counsel packet preview", "Attorney matching request"].map(
+            {["Preparation Workspace", "Matter organization", "Counsel packet preview", "Attorney matching request"].map(
               (item) => (
                 <div key={item} className="rounded-2xl border border-[#DCE7F3] bg-white p-4 text-sm font-semibold text-[#334155] shadow-sm">
                   {item}

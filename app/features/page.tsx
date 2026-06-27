@@ -22,7 +22,7 @@ const features = [
       "Deterministic scoring",
       "Missing facts panel",
     ],
-    note: "Venture Progress reflects completion of requested preparation information. It is not a legal opinion, compliance rating, investment judgment, or guarantee.",
+    note: "Based on your completed checklist items. Not legal, financial, or investment advice.",
   },
   {
     title: "Counsel Brief",

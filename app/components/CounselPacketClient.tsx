@@ -146,7 +146,7 @@ export function CounselPacketClient() {
       body: [
         selectedMatter?.recommendedNextPreparationStep || "No matter-specific next step submitted.",
         `Primary preparation reason: ${data.priorityMatter || "Not provided"}`,
-        `Preparation completion: ${score.percent}%`,
+        `Overall preparation: ${score.percent}%`,
         `Preparation Checklist completion: ${checklistCompletion}%`,
         `Deadline: ${selectedMatter?.knownDeadline || data.deadline || "Not provided"}`,
         `Preferred format: ${data.communicationFormat || "Not provided"}`,
@@ -207,7 +207,7 @@ export function CounselPacketClient() {
       body: [
         "Source: founder-submitted company profile and saved matter details from the VenturePack workspace.",
         "Generation method: deterministic VenturePack template; no AI generation.",
-        `Preparation completion: ${score.percent}%.`,
+        `Overall preparation: ${score.percent}%.`,
       ],
     },
     {
@@ -244,7 +244,7 @@ export function CounselPacketClient() {
             <PreparationChecklist items={checklistItems} completionPercentage={checklistCompletion} compact />
           </div>
           <p className="mt-5 rounded-2xl border border-[#DCE7F3] bg-[#F8FAFC] p-4 text-sm leading-6 text-[#64748B]">
-            Preparation completion reflects the information compiled in VenturePack. It is not legal compliance and does not replace professional counsel.
+            Based on your completed checklist items. Not legal, financial, or investment advice.
           </p>
         </div>
 
